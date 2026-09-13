@@ -118,9 +118,10 @@ many aliases name it.
 importer's variable is `undefined variable`, reached through the import and
 reported with `note: reached from`.
 
-**Held by** — **nothing yet.** A module is a file and a generated cell is one
-file; until the runner can emit a sibling, this is a pin or it is untested.
-Today it is untested.
+**Held by** — `modularity/module-does-not-see-its-importer` and
+`modularity/two-modules-may-hold-one-name`. Possible since 2026-09-13, when a
+cell learned to declare sibling files: a module is a file, and until then this
+premise could not be asked at all.
 
 ---
 
@@ -135,11 +136,22 @@ functions, and only by them. They are not exportable: only constants and
 functions leave. This is the closest thing the language has to a global
 variable, and the fence is what keeps it from being one.
 
-**Measured** (2026-09-12) — **Holds, and the fence is enforced.** `#> { n }`
-where `n` is a variable is `E005: Item 'n' not found in module`. State persists
-across calls and is shared by every alias and importer of that file.
+**Measured** (2026-09-12, **corrected 2026-09-13**) — the state persists across
+calls and is carried by the module's own functions, in all three engines. **The
+fence does not hold in two of them.**
 
-**Held by** — **nothing yet**, same reason as MEM-3.
+`#> { n }` where `n` is a variable is `E005: Item 'n' not found in module` under
+`zymbol check`, and `zytw` refuses it at run time — but **`zyvm` and `zyjs`
+print the value**. Recorded as `GLB-009`, open, and it matters because the fence
+is the whole difference between a closed environment and a global variable.
+
+The 2026-09-12 entry said the fence *was* enforced. It was verified with
+`zymbol check` and not by running — the same mistake `DM-05` made, and the one
+`HOW_TO_CHANGE_ZYMBOL.md` § 2 lists as way out number three. A static error two
+engines ignore at run time is not a fence.
+
+**Held by** — `modularity/module-state-is-not-exportable` (**red**: `GLB-009`),
+`modularity/module-functions-own-the-state` (green: the legitimate half).
 
 ---
 
@@ -524,6 +536,49 @@ cell, and should.
 
 ---
 
+### MEM-8 — Memory is released automatically and invisibly, or destroyed by hand
+
+**Original** — «auto limpieza de memoria o borrado manual de memoria»
+(2026-09-11), declared as a premise 2026-09-13.
+
+**Normative** — Two mechanisms, and the difference between them is
+observability.
+
+**Automatic release is invisible.** A value is released after its last use, and
+that it was released changes nothing a program can observe: a correct program
+behaves identically with the mechanism and without it. Anything the analysis
+cannot decide is not released — hot definitions, constants, `_` names, the free
+variables of a function used as a value, and every module-level binding — so the
+conservative direction is always the silent one.
+
+**Explicit destruction is the exception, and it is observable on purpose.**
+`\ x` ends a name's life where it is written, and using the name afterwards is
+an **error**. That is the whole point of having it: a programmer who writes `\`
+is making a statement about lifetime, and a statement nobody can be wrong about
+is not a statement.
+
+**Measured** (2026-09-13) — the automatic half holds, and `zyquality/cost/`
+measures it: two aggregates used one after the other peak at the cost of one
+(0.51 in the tree-walker, 0.55 in the VM), while the same two alive at once peak
+at two. The 634 goldens are the other half of that evidence — releasing early has
+never changed an answer.
+
+The explicit half **diverges**, and each engine has a different half of it right:
+
+| | when | what it says |
+|---|---|---|
+| `zytw`, `zyvm` | **runtime**, after half the output is written | `use after destruction: variable 'x' was destroyed after its last use` |
+| `zyjs` | **before running** | `undefined variable 'x'` — the generic message, which does not say a destruction happened |
+
+`zymbol check` reports nothing at all on the Rust side. No corpus file writes
+the case: both files that use `\` destroy a name and never touch it again, which
+is why a consensus run has never asked. Recorded as `GLB-008`.
+
+**Held by** — `lifetime/*`; the automatic half by `zyquality/cost/autofree/*`,
+which is a claim about cost rather than about behaviour and cannot be a cell.
+
+---
+
 ## 5. Generated code
 
 Distilled on 2026-09-12 from `interpreter/AGENTIC.md`, which measured these
@@ -550,9 +605,10 @@ code, in any form.
 not allowed in module body`, reported through the import with `note: reached
 from`.
 
-**Held by** — **nothing yet.** Needs a two-file cell, like MEM-3, MEM-4 and
-AGT-2. Four premises now wait on the same missing capability, which makes it the
-harness's bottleneck rather than a detail.
+**Held by** — `modularity/import-executes-nothing`. Possible since 2026-09-13:
+a cell can declare sibling files, so a module body that computes can finally be
+written down and refused. Until then this — the property that removes the whole
+class of install-time and import-time code — was defended by nothing.
 
 ### AGT-2 — A module declares its surface
 
@@ -565,7 +621,8 @@ required.
 **Measured** (2026-09-11) — holds: `E014: module 'm' does not declare what it
 exports`.
 
-**Held by** — **nothing yet**, same reason as AGT-1.
+**Held by** — `modularity/module-declares-its-surface`,
+`modularity/undeclared-item-does-not-leave`.
 
 ### AGT-3 — The reachable program is knowable before running it
 
@@ -627,7 +684,7 @@ something was lost.
 | what was said | measured 2026-09-12 |
 |---|---|
 | ~~«scope de variable sin permitir la reutilización de nombres»~~ | **declared 2026-09-12 as MEM-7**, once the boundary was precise: the prohibition is inside a strong environment, not between them. Two of the four forms I had listed as defects are the model working — an inner assignment mutating the outer name (one `x`, no shadowing) and a parameter reusing a file-level name (different containers) |
-| «auto limpieza de memoria o borrado manual de memoria» (2026-09-11) | **holds**: auto-free at last use is required to be unobservable, `\ x` destroys and a later use aborts — though only at runtime, never in `check` |
+| ~~«auto limpieza de memoria o borrado manual de memoria»~~ | **declared 2026-09-13 as MEM-8.** Promoting it found the divergence its own absence had hidden: the three engines refuse a use after `\`, at different times and with different words |
 
 ### The rule that only exists in a gap log
 
