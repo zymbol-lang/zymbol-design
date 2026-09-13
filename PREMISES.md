@@ -141,9 +141,12 @@ calls and is carried by the module's own functions, in all three engines. **The
 fence does not hold in two of them.**
 
 `#> { n }` where `n` is a variable is `E005: Item 'n' not found in module` under
-`zymbol check`, and `zytw` refuses it at run time — but **`zyvm` and `zyjs`
-print the value**. Recorded as `GLB-009`, open, and it matters because the fence
-is the whole difference between a closed environment and a global variable.
+`zymbol check`, and `zytw` refused it at run time — while **`zyvm` and `zyjs`
+printed the value**. Recorded as `GLB-009` and **fixed the same day**: the VM's
+export table accepted an `Assignment` as the source of an exported constant, and
+the browser engine handed out whatever the name held. All three refuse it now,
+with the same wording; what still differs is when — the VM decides while
+compiling and the other two while running.
 
 The 2026-09-12 entry said the fence *was* enforced. It was verified with
 `zymbol check` and not by running — the same mistake `DM-05` made, and the one
