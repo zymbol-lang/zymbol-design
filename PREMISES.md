@@ -73,11 +73,19 @@ declares it. A variable of the main scope is visible only in the main scope; a
 function body is a different scope and does not reach it. Values cross that
 boundary as parameters (MEM-5), never by being in view.
 
-**Measured** (2026-09-12) — **Does not hold, through exactly one door.** A named
-function reads the file's top-level names, by value, at call time, when they are
-declared lexically before it. `zymbol check` says nothing. Every other door is
-refused statically: a name from a block, a name from another frame, a name
-declared after the function, a name from the importing script.
+**Measured** (2026-09-13, after implementation) — **Holds for a named function,
+in all three engines**: reading a file variable from inside one is a static
+error. **Not yet for a lambda**, where it is a warning while that half is
+decided (see MEM-6).
+
+**Impact, measured before deciding.** Across 1251 files — 666 corpus, the
+playground examples and all nine applications — reaching out of a NAMED FUNCTION
+happened in **four files, all four corpus files that test this very rule**, and
+in **none of the nine applications**. Reaching out of a LAMBDA happened 68 times,
+in code that is written and taught. That asymmetry is what made the two halves
+separable, and it is why the first sweep's 240 hits were not the answer: 168 of
+them were module functions reading their own module's state, which is MEM-4 and
+not a crossing at all.
 
 **History** — it held until **2026-08-24**. `GUIDE.md` § 10b documented the
 isolation as deliberate; commit `fbccc8e` retired both, to resolve ZyBank's
@@ -87,9 +95,11 @@ taken as a value captured). Of the two ways to make that coherent — isolate bo
 paths, or capture in both — the second was taken, with the argument *"one rule
 instead of two"*.
 
-**Held by** — `isolation/file-var-*` (4 cells, **red**: this is the distance,
-not a regression), `isolation/block-var-*` and `isolation/caller-local-*`
-(8 cells, green: the doors that are shut), `isolation/parameter-is-the-door`.
+**Held by** — `isolation/file-var-direct`, `isolation/file-var-as-value` and
+`isolation/file-var-nested` (green since 2026-09-13); `isolation/file-var-lambda`
+(**red**, and correctly so: it is the half that is still a warning);
+`isolation/block-var-*` and `isolation/caller-local-*` (the doors that were
+already shut), `isolation/parameter-is-the-door`.
 
 ---
 
@@ -185,6 +195,16 @@ mark: `°`.
 the half `ERROR-ZYB-002` left open: the incoherence it found — a direct call
 isolated, the same function as a value capturing — is resolved toward isolation
 for both, which is the branch not taken on 2026-08-24.
+
+**Enforced asymmetrically, and that is open** (2026-09-13). Reaching out of a
+named function is an error; out of a lambda it is a **warning**. The count is
+the occasion — 4 sites against 68 — but the reason is not the count: **a lambda
+is written AT the point where it is created**, so a reader sees it beside what
+it captures, while a named function is defined far from where it is called. That
+argument was made when the asymmetry was implemented, not before it, and it has
+not been decided as a premise. Either MEM-6 gains an exception for the lambda's
+capture, stated as one, or the warning becomes an error and 68 sites migrate —
+`web/examples/lambdas/closure.zy` and two lessons of the course among them.
 
 **Measured** (2026-09-12, three engines) — **Holds for the light environment and
 for the module; does not hold for the function or the lambda.** A block's name
