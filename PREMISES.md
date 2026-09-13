@@ -73,10 +73,10 @@ declares it. A variable of the main scope is visible only in the main scope; a
 function body is a different scope and does not reach it. Values cross that
 boundary as parameters (MEM-5), never by being in view.
 
-**Measured** (2026-09-13, after implementation) — **Holds for a named function,
-in all three engines**: reading a file variable from inside one is a static
-error. **Not yet for a lambda**, where it is a warning while that half is
-decided (see MEM-6).
+**Measured** (2026-09-13, after implementation) — **Holds, in all three
+engines.** Reading a file variable from inside a named function is a static
+error, and a lambda written inside that function cannot reach the file either,
+because it inherits the boundary (MEM-6).
 
 **Impact, measured before deciding.** Across 1251 files — 666 corpus, the
 playground examples and all nine applications — reaching out of a NAMED FUNCTION
@@ -95,11 +95,11 @@ taken as a value captured). Of the two ways to make that coherent — isolate bo
 paths, or capture in both — the second was taken, with the argument *"one rule
 instead of two"*.
 
-**Held by** — `isolation/file-var-direct`, `isolation/file-var-as-value` and
-`isolation/file-var-nested` (green since 2026-09-13); `isolation/file-var-lambda`
-(**red**, and correctly so: it is the half that is still a warning);
-`isolation/block-var-*` and `isolation/caller-local-*` (the doors that were
-already shut), `isolation/parameter-is-the-door`.
+**Held by** — `isolation/file-var-direct`, `isolation/file-var-as-value`,
+`isolation/file-var-nested`,
+`isolation/lambda-inside-a-function-cannot-reach-the-file`,
+`isolation/block-var-*`, `isolation/caller-local-*`,
+`isolation/parameter-is-the-door`. All green since 2026-09-13.
 
 ---
 
@@ -191,20 +191,43 @@ its strong environment already holds is a modification of that one name, never a
 shadowing copy. For a value to survive the block, the language already has a
 mark: `°`.
 
-**A lambda is strong** (decided 2026-09-12). It does not see the file. This is
-the half `ERROR-ZYB-002` left open: the incoherence it found — a direct call
-isolated, the same function as a value capturing — is resolved toward isolation
-for both, which is the branch not taken on 2026-08-24.
+**A lambda is LIGHT** — decided 2026-09-13, and it replaces the 2026-09-12
+reading that made it strong.
 
-**Enforced asymmetrically, and that is open** (2026-09-13). Reaching out of a
-named function is an error; out of a lambda it is a **warning**. The count is
-the occasion — 4 sites against 68 — but the reason is not the count: **a lambda
-is written AT the point where it is created**, so a reader sees it beside what
-it captures, while a named function is defined far from where it is called. That
-argument was made when the asymmetry was implemented, not before it, and it has
-not been decided as a premise. Either MEM-6 gains an exception for the lambda's
-capture, stated as one, or the warning becomes an error and 68 sites migrate —
-`web/examples/lambdas/closure.zy` and two lessons of the course among them.
+**Original** — «podríamos definir las lambdas como scope ligero pero explícito,
+ya que el parámetro que se declara es el que se modificará y el que toma de
+fuera estará contenido en su scope de alcance previo nunca global».
+
+A lambda opens no boundary of its own. Its parameters are explicit and are the
+only thing it declares — the same contract a `@` iterator has — and what it
+reads from outside is whatever its **enclosing** scope holds, never anything
+global to it.
+
+The consequence is that **its isolation is inherited rather than excepted**:
+
+| written at | reads | because |
+|---|---|---|
+| file level | the file's variables | it **is** that scope, exactly as a `?` block is |
+| inside a function | that function's parameters and locals | that is the scope it sits in |
+| inside a function | **not** the file | the function cannot reach the file either, so neither can the lambda |
+
+This is what makes MEM-2 need no exception for it, and it is why it is the right
+reading rather than merely the cheap one: the alternative — a lambda strong like
+a named function — would make `n$> (x -> x * factor)` **inexpressible**, because
+`$>` takes a lambda of exactly one parameter and the language has no other
+channel for context. A rule that removes a capability rather than relocating it
+is not a rule, it is a loss.
+
+**Measured** (2026-09-13, after implementation) — holds, in all three engines,
+**and the cost of enforcing it was zero**: across 1251 files the only one that
+errors is `errors/semantic/funcion_lee_el_archivo.zy`, which exists to error.
+The 68 lambda warnings the strong reading produced are gone, because they were
+never crossings.
+
+`ERROR-ZYB-002`'s incoherence is closed either way: both ways of reaching a
+named function behave alike, isolated. That finding was about one body reached
+two ways, which was never the same question as whether a lambda may read the
+scope it is written in.
 
 **Measured** (2026-09-12, three engines) — **Holds for the light environment and
 for the module; does not hold for the function or the lambda.** A block's name
@@ -214,11 +237,13 @@ anchors above a loop; two modules each holding `x` do not collide (7 / 999), nor
 do a module and its importer (5 / 999). The function and the lambda both read
 the file's top-level names — see MEM-2.
 
-**Held by** — `isolation/light-block-does-not-leak`,
+**Held by** — `isolation/lambda-at-file-level-reads-the-file`,
+`isolation/lambda-sees-its-enclosing-function`,
+`isolation/light-block-does-not-leak`,
 `isolation/light-block-modifies-its-strong`,
 `isolation/light-siblings-are-independent`,
 `isolation/hot-definition-anchors-above`, and the cells it shares with MEM-2:
-`isolation/block-var-*`, `isolation/caller-local-*`, `isolation/file-var-lambda`.
+`isolation/block-var-*`, `isolation/caller-local-*`.
 
 ---
 
