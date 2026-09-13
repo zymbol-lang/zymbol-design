@@ -218,8 +218,19 @@ A light environment introduces no exception: it has no namespace of its own, so
 a block cannot hold a second thing under a name its strong environment already
 uses.
 
-**Measured** (2026-09-12) — **Does not hold, four ways, all accepted in
-silence**, and the first one is worse than accepted:
+**Measured** (2026-09-12, after implementation) — **Holds, in all three
+engines.** All four forms are static errors, with the same wording everywhere and
+a help line that states the rule rather than only refusing.
+
+**Impact of enforcing it: zero.** Before turning the check on, the four forms
+were searched for across the whole workspace — 666 corpus files, the 41 refusal
+forms, the playground examples and all nine applications. **Not one file used
+any of them.** Nothing had to be migrated, which is itself the finding: these
+were never shapes anyone wrote on purpose. A model generating code is another
+matter, which is why `f(a, a)` mattered enough to refuse.
+
+The state it replaced, kept because it is why the rule is an error and not a
+warning:
 
 | form | engines |
 |---|---|
@@ -231,8 +242,12 @@ silence**, and the first one is worse than accepted:
 `f(a, a)` is a program whose value is decided by the engine that runs it. No
 corpus file writes it, which is why nobody had asked.
 
-**Decided 2026-09-12** — a static error. It does not wait for MEM-2: it is
-separable and cheap.
+**Decided 2026-09-12** — a static error. It did not wait for MEM-2: it was
+separable and cheap. **Implemented the same day** in
+`crates/zymbol-semantic/src/type_check.rs` (`check_name_collisions`, serving
+both Rust engines) and in `web/src/zymbol/zymbol.js` (`checkNameCollisions`).
+The four cells went green; `zyq consensus` stayed at 660 agreeing and 0
+diverging, and every golden and refusal form held.
 
 **Held by** — `isolation/two-parameters-alike`,
 `isolation/parameter-named-as-its-function`,
