@@ -335,8 +335,7 @@ result is **discarded** — the `$` is the whole statement — **modifies in pla
 
 **Measured** (2026-09-12) — holds.
 
-**Held by** — **nothing yet.** The rule has two halves and a cell must ask both
-of one edit; no axis crosses them.
+**Held by** — `collections/result-used-builds`, `collections/result-discarded-modifies` — the two halves asked together, because either alone is met by an engine that always does one of them.
 
 ---
 
@@ -353,7 +352,7 @@ what it touches.
 does not exist: 'a[…] =' is not a form of Zymbol`, and the same for a
 dictionary.
 
-**Held by** — **nothing yet.**
+**Held by** — `collections/indexed-assignment-does-not-exist`, `collections/indexed-assignment-on-a-dictionary`.
 
 ---
 
@@ -368,7 +367,7 @@ operator behaves the same on both — `#` is the meta mark, not a second type.
 **Measured** (2026-09-12) — **holds, statically**: `[1, "dos"]` is `error: array
 element 2 has type String, but expected Int`; `#[1, "dos"]` passes.
 
-**Held by** — **nothing yet.**
+**Held by** — `collections/array-is-checked`, `collections/declared-mix-is-not`.
 
 ---
 
@@ -385,7 +384,7 @@ value has no defensible one.
 tuples are immutable`, and `(1,2) < (3,4)` is `cannot compare values with
 operator 'Lt'`.
 
-**Held by** — **nothing yet.**
+**Held by** — `collections/tuple-is-immutable`, `collections/tuple-has-no-ordering`, `collections/tuple-compares-equal`.
 
 ---
 
@@ -402,7 +401,7 @@ silent empty value.
 **Measured** (2026-09-12, both engines) — holds: `a dictionary is addressed by
 key, not by position`, and `no key 'z' in dictionary — available: x`.
 
-**Held by** — **nothing yet.**
+**Held by** — `collections/dictionary-refuses-a-position`, `collections/absent-key-is-an-error`.
 
 ---
 
@@ -418,8 +417,7 @@ requirement.
 **Measured** (2026-09-12, both engines) — holds: `f = e` then `e[1]$~ 99` leaves
 `f` as `[1, 2, 3]`.
 
-**Held by** — **nothing yet**, for the semantics. Its *cost* is held by
-`zyquality/cost/`, which is a different claim about the same mechanism.
+**Held by** — `collections/assignment-copies`. Its COST is held by `zyquality/cost/`, which is a different claim about the same mechanism.
 
 ---
 
@@ -534,8 +532,9 @@ read as a bare break followed by an expression, and fails with `undefined
 variable 'outer'`. Correct refusal, and again a message that does not state the
 rule it is enforcing.
 
-**Held by** — **nothing yet**; unlike its six siblings this one *can* have a
-cell, and should.
+**Held by** — `refusal/modality-before-its-label`. Unlike its six siblings this
+one leaves a trace a program can carry, so it was the one that could have a cell
+— and now has it.
 
 ---
 
