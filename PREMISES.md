@@ -579,8 +579,9 @@ measurement because that one read only the first line of the output: **`\` did
 nothing at all in the VM** for a file variable, since dropping the register
 binding left the value reachable in `global_vars`.
 
-**Held by** — `lifetime/*`; the automatic half by `zyquality/cost/autofree/*`,
-which is a claim about cost rather than about behaviour and cannot be a cell.
+**Held by** — `lifetime/*` for the explicit half. The automatic half is held
+elsewhere: `zyquality/cost/`, where it is a ratio of peak memory against a
+control — a claim about cost, which no cell can assert.
 
 ---
 
@@ -643,8 +644,17 @@ reviewing generated code finite work.
 come before any statement`; `p = "./x.zy"` then `</ p />` is `file not found:
 p`, because `p` *is* the path; no form executes a string as code.
 
-**Held by** — **nothing yet.** The `eval` half cannot have a cell at all: there
-is no program that tests the absence of a feature. The other three can.
+**Held by** — `modularity/import-path-is-a-literal`,
+`modularity/imports-come-first`,
+`modularity/subscript-path-is-taken-literally`.
+
+The `eval` half **cannot have a cell at all**, and the reason is worth keeping:
+no program demonstrates the ABSENCE of a feature. A cell that tried would test
+whichever spelling its author guessed, and pass for every spelling nobody
+thought of. It is held by the language's own shape — there is no form in the
+grammar that takes a string and runs it — and by `SYM-5`, which requires a mark
+to be described before it exists. Adding `eval` would have to go through that
+door first.
 
 ### AGT-4 — The effect surface is lexical and finite
 
@@ -662,7 +672,13 @@ restricts a program from using any of them (`AGENTIC.md` G1, open). The premise
 as written claims auditability, which is what holds; enforceability is a
 separate decision nobody has taken.
 
-**Held by** — **nothing yet.**
+**Held by** — review, and it cannot be otherwise. The claim is that the list
+is CLOSED, and closure is not a property any program exhibits: a cell can show
+that `std/net` reaches the network, and no cell can show that nothing else does.
+What holds it is the same thing that holds `SYM-5` — a new gate would need a new
+mark or a new `std/` module, and both go through a declaration before they
+exist. The day the list grows without this premise changing, the defect is in
+the review and no test would have caught it.
 
 ### AGT-5 — A package is source, never a binary
 
@@ -676,7 +692,11 @@ user's real working directory.
 **Measured** — holds by construction; `zymbol-package` never compiles or
 executes Zymbol code.
 
-**Held by** — **nothing yet.**
+**Held by** — elsewhere: `web/tests/test_zyp.mjs`, which reads `.zyp` archives as ZIPs of
+source and is where the two defects an audit found on this path are pinned. Not
+a cell, and not for want of trying: a `.zyp` is an archive rather than a program,
+so what has to be asked is about the FILE and not about what it prints —
+the same shape as `zyquality/cost/`, which measures a ratio no cell can assert.
 
 ---
 
