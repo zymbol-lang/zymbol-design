@@ -566,16 +566,19 @@ measures it: two aggregates used one after the other peak at the cost of one
 at two. The 634 goldens are the other half of that evidence — releasing early has
 never changed an answer.
 
-The explicit half **diverges**, and each engine has a different half of it right:
+The explicit half **holds too, since 2026-09-13** — and fixing it corrected the
+premise's own reading of what «error» means here.
 
-| | when | what it says |
-|---|---|---|
-| `zytw`, `zyvm` | **runtime**, after half the output is written | `use after destruction: variable 'x' was destroyed after its last use` |
-| `zyjs` | **before running** | `undefined variable 'x'` — the generic message, which does not say a destruction happened |
+It must be a **run-time** error, and that is not a concession to how the engines
+happen to work. A `\` inside a branch that never runs destroys nothing, so a
+static check without flow analysis cannot tell a destruction that HAPPENED from
+one that was merely written down. `zyjs` was refusing `? #0 { \ x }` followed by
+`>> x`, which both Rust engines print. The late answer is the correct one.
 
-`zymbol check` reports nothing at all on the Rust side. No corpus file writes
-the case: both files that use `\` destroy a name and never touch it again, which
-is why a consensus run has never asked. Recorded as `GLB-008`.
+`GLB-008`, closed. It took three fixes, and the third was invisible to the first
+measurement because that one read only the first line of the output: **`\` did
+nothing at all in the VM** for a file variable, since dropping the register
+binding left the value reachable in `global_vars`.
 
 **Held by** — `lifetime/*`; the automatic half by `zyquality/cost/autofree/*`,
 which is a claim about cost rather than about behaviour and cannot be a cell.
