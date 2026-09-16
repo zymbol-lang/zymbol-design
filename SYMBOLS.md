@@ -1079,7 +1079,7 @@ follows is everything in the language that *is* a word, so the rule's scope is u
 
 | Residue | Form | Assessment |
 |---|---|---|
-| **Error kinds** | `##IO` `##Network` `##Parse` `##Index` `##Type` `##Div` `##_` | Six English words plus `##_`, the one symbolic member. `##` is grammar; the name after it is an open identifier slot — the parser accepts *any* identifier, including `##Índice`, which simply never matches at run time. |
+| **Error kinds** | `##Div` `##Index` `##Key` `##Range` `##Type` `##Parse` `##IO` `##Network` `##DB` `##Time` `##_` | Ten English words plus `##_`, the one symbolic member. `##` is grammar; the name after it is an open identifier slot — the parser accepts *any* identifier, including `##Índice`, which simply never matches at run time. |
 | **Standard library** | `std/math` `std/random` `std/json` `std/io` `std/net` `std/term` `std/db`, and every function in them | Module paths and function names. Identifiers, addressed the same way user modules are. |
 | **Base prefixes** | `0x` `0b` `0o` `0d` | Abbreviations of hex / binary / octal / decimal. The most avoidable item on this list, and the most entrenched. |
 | **Conventional identifier** | `_err` | Not reserved; a convention the catch clause populates. |

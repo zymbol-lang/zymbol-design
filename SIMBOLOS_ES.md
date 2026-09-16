@@ -1058,7 +1058,7 @@ regla quede inequívoco.
 
 | Residuo | Forma | Evaluación |
 |---|---|---|
-| **Tipos de error** | `##IO` `##Network` `##Parse` `##Index` `##Type` `##Div` `##_` | Seis palabras en inglés más `##_`, el único miembro simbólico. `##` es gramática; el nombre después de eso es una ranura de identificador abierta — el analizador acepta *cualquier* identificador, incluido `##Índice`, que simplemente nunca coincide en tiempo de ejecución. |
+| **Tipos de error** | `##Div` `##Index` `##Key` `##Range` `##Type` `##Parse` `##IO` `##Network` `##DB` `##Time` `##_` | Diez palabras en inglés más `##_`, el único miembro simbólico. `##` es gramática; el nombre después de eso es una ranura de identificador abierta — el analizador acepta *cualquier* identificador, incluido `##Índice`, que simplemente nunca coincide en tiempo de ejecución. |
 | **Biblioteca estándar** | `std/math` `std/random` `std/json` `std/io` `std/net` `std/term` `std/db`, y cada función en ellos | Rutas de módulo y nombres de función. Identificadores, tratados igual que los de los módulos de usuario. |
 | **Prefijos de base** | `0x` `0b` `0o` `0d` | Abreviaturas de hexadecimal / binario / octal / decimal. El elemento más evitable de esta lista, y el más arraigado. |
 | **Identificador convencional** | `_err` | No reservado; una convención que la cláusula catch rellena. |
