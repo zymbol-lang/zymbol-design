@@ -1,0 +1,4 @@
+doble(x) { <~ x * 2 }
+mas1(x) { <~ x + 1 }
+h = doble . mas1
+>> h(3) ¶

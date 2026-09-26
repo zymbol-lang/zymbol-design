@@ -42,6 +42,23 @@ The premises Zymbol's implementations must meet, and nothing else.
 
 **The rules**, which are what an engine is measured against:
 
+- **[`MODEL.md`](MODEL.md)** — what kind of language this is. Source rank like
+  `PREMISES.md`, and it declares no ids: it states the axis the language was
+  designed on — *how much of a program must be read to know what a fragment
+  does* — the five properties that narrow it, the typing discipline that belongs
+  to neither the static nor the dynamic camp, and what a function is and is not.
+  Its § 8 separates the four layers — declared, measured, interpretation, open —
+  and its own editorial rule is the guard that keeps them apart: *a reason is
+  not a rule*, so an explanation of why a decision was taken stays a paragraph
+  and never becomes a property of the language.
+
+- **[`CANDIDATES.md`](CANDIDATES.md)** — the waiting room. Rules the language
+  appears to have and `PREMISES.md` does not declare: each with an id, a folder
+  of probes under `candidates/`, and the answer all three engines give, so that
+  deciding one is reading rather than re-deriving. Nothing in it is normative,
+  and `zyq suite` does not run it — a candidate that "fails" is not a regression,
+  because there is nothing yet for it to fail against. `zyq show` is its runner.
+
 - **[`PREMISES.md`](PREMISES.md)** — the declared premises, by ID. The only part
   that is machine-checkable today: `zyddt premises` crosses each id against the
   cells that hold it.

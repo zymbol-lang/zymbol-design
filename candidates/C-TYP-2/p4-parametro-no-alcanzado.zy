@@ -1,0 +1,4 @@
+// The type of a parameter of a parameter is not reached by inference.
+aplica(g, v) { <~ g(v) }
+doble(x) { <~ x * 2 }
+>> aplica(doble, "hola") ¶

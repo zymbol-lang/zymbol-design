@@ -1,0 +1,4 @@
+// The contrast: a lambda is light and does read the scope it sits in.
+base = 10
+f = (n -> n + base)
+>> f(5) ¶
