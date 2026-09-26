@@ -1,0 +1,3 @@
+// Is there a default-parameter form?
+f(a, b = 2) { <~ a + b }
+>> f(1) ¶

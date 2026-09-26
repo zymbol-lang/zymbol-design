@@ -1,0 +1,5 @@
+// The same name holds an Int and then a String.
+x = 1
+>> x ¶
+x = "dos"
+>> x ¶

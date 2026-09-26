@@ -1,0 +1,5 @@
+// The form older documentation described as "captures the scope at assignment".
+base = 10
+adder(n) { <~ n + base }
+f = adder
+>> f(5) ¶
