@@ -193,32 +193,40 @@ tener la variable de otro de los 3, sería insostenible en el tiempo. Lo mismo v
 para las funciones. […] `? #1 { x = 1 }` ligero, este no permite que esta
 variable exista en su entorno fuerte.»
 
+**Original** (the lambda, 2026-09-13) — «podríamos definir las lambdas como
+scope ligero pero explícito, ya que el parámetro que se declara es el que se
+modificará y el que toma de fuera estará contenido en su scope de alcance previo
+nunca global».
+
 **Normative** — Two levels, and only two.
 
-A **strong environment** is an isolated container: a module, a named function,
-and a lambda. No name enters except as a parameter; no name leaves except as a
+A **strong environment** is an isolated container: a module and a named
+function. No name enters except as a parameter; no name leaves except as a
 return value or through `<~`. What it holds is its own, whatever it is called.
 
-A **light environment** is every block — `?`, `_?`, `_`, `@`, `??` arms, `!?`.
-It lives inside a strong one: it reads and modifies that container's names, and
-what is born in it dies with it. It opens no new namespace, so assigning a name
-its strong environment already holds is a modification of that one name, never a
-shadowing copy. For a value to survive the block, the language already has a
-mark: `°`.
+A **light environment** is every block — `?`, `_?`, `_`, `@`, `??` arms, `!?` —
+**and the lambda**. It opens no namespace of its own: it lives inside a strong
+environment, reads that container's names, and what is born in it dies with it.
+Assigning a name its strong environment already holds is a modification of that
+one name, never a shadowing copy. For a value to survive the block, the language
+already has a mark: `°`.
 
-**A lambda is LIGHT** — decided 2026-09-13, and it replaces the 2026-09-12
-reading that made it strong.
+Its two members are alike in what they read and in how long their names live.
+They differ in **one direction, and that difference is declared rather than
+incidental**:
 
-**Original** — «podríamos definir las lambdas como scope ligero pero explícito,
-ya que el parámetro que se declara es el que se modificará y el que toma de
-fuera estará contenido en su scope de alcance previo nunca global».
+| | reads its container | writes its container | names born in it |
+|---|---|---|---|
+| a block | yes | **yes** | die with it |
+| a lambda | yes | **no** — it writes only the names it declares | die with it |
 
-A lambda opens no boundary of its own. Its parameters are explicit and are the
-only thing it declares — the same contract a `@` iterator has — and what it
-reads from outside is whatever its **enclosing** scope holds, never anything
-global to it.
+That row is what «ligero pero **explícito**» names. A lambda reaches out for a
+value the way a block does, and the only name it modifies is the one it declared,
+so nothing it does travels back out of it unannounced.
 
-The consequence is that **its isolation is inherited rather than excepted**:
+**Why the lambda is light and not strong.** It opens no boundary of its own, so
+the isolation it has is the one it **inherits** from the strong environment it is
+written in:
 
 | written at | reads | because |
 |---|---|---|
@@ -239,18 +247,58 @@ errors is `errors/semantic/funcion_lee_el_archivo.zy`, which exists to error.
 The 68 lambda warnings the strong reading produced are gone, because they were
 never crossings.
 
+**Measured** (2026-09-21, the write direction, three engines agreeing) — holds,
+and it is the half nothing had asked. The contrast is the evidence:
+
+```zymbol
+c = 0
+r = [1,2,3]$> (x -> { c = c + x  <~ x })
+>> c ¶                                     // → 0   the lambda's write stays inside
+
+c = 0
+? #1 { c = c + 5 }
+@ i:1..2 { c = c + 1 }
+>> c ¶                                     // → 7   the block's write goes through
+```
+
+and the three reading rows above, also in all three engines: a file-level lambda
+reads the file (`[3, 6, 9]`), a lambda inside a function reads that function's
+parameters (`[5, 10]`), and the same lambda reading a file variable is
+`error: 'tope' is read from outside this function`. A name born inside a lambda
+is gone after it (`error: undefined variable 't'`).
+
 `ERROR-ZYB-002`'s incoherence is closed either way: both ways of reaching a
 named function behave alike, isolated. That finding was about one body reached
 two ways, which was never the same question as whether a lambda may read the
 scope it is written in.
 
-**Measured** (2026-09-12, three engines) — **Holds for the light environment and
-for the module; does not hold for the function or the lambda.** A block's name
-read outside it is a static error in all three engines; a block modifying its
-container's name works; sibling blocks with the same name are independent; `°`
-anchors above a loop; two modules each holding `x` do not collide (7 / 999), nor
-do a module and its importer (5 / 999). The function and the lambda both read
-the file's top-level names — see MEM-2.
+**History** — the lambda was listed as a **strong** environment when this premise
+was first written, on 2026-09-12. That was an **error of precision, not a rule
+that was later reversed**: the author's own reading had always been «ligero pero
+explícito», and the entry said so from 2026-09-13.
+
+What was done on 2026-09-13 was to correct the engines and the cells, and to
+*append* the corrected reading to this entry. What was not done was to rewrite
+the rule it replaced. For nine days the entry therefore stated both readings at
+once, and the **`Normative` paragraph — the part an engine is measured against —
+carried the wrong one**, while the implementation, `ZyDDT/axes/isolation.toml`
+and the prose below it all carried the right one.
+
+A correction that lands everywhere except in the sentence being measured is its
+own failure mode, and it is the mirror of the one § 7 exists to catch: there the
+rule was quietly moved to match the engines, here the rule was left behind while
+everything else moved. Both end with `Normative` disagreeing with the author.
+**Corrected 2026-09-21**, on the author's instruction, in a commit that changes
+nothing else.
+
+The state before the 2026-09-13 implementation, kept because it is what the
+cells were declared against: *"Holds for the light environment and for the module;
+does not hold for the function or the lambda"* — a block's name read outside it
+was already a static error in all three engines, a block modifying its container's
+name worked, sibling blocks with the same name were independent, `°` anchored
+above a loop, and two modules each holding `x` did not collide (7 / 999), nor did
+a module and its importer (5 / 999). The function and the lambda both read the
+file's top-level names.
 
 **Held by** — `isolation/lambda-at-file-level-reads-the-file`,
 `isolation/lambda-sees-its-enclosing-function`,
@@ -259,6 +307,13 @@ the file's top-level names — see MEM-2.
 `isolation/light-siblings-are-independent`,
 `isolation/hot-definition-anchors-above`, and the cells it shares with MEM-2:
 `isolation/block-var-*`, `isolation/caller-local-*`.
+
+**The write direction has no cell yet.** `light-block-modifies-its-strong` holds
+one half of the table above and nothing holds the other: an engine in which a
+lambda wrote through to its container would pass every cell this premise names.
+The missing cell is the exact shape of `write-inside-a-function-does-not-escape`,
+which was itself found on 2026-09-13 by reading the premises against the cells
+rather than by a failure.
 
 ---
 
