@@ -636,6 +636,7 @@ Run this against any Zymbol application that shows text to a user.
 | 12 | A gate walks catalogue × locales, in both engines | Missing translations found by users |
 | 13 | The gate exercises composed messages | A plural bug that only appears on the end screen |
 | 14 | Documentation exists per language | `README.md` only |
+| 15 | No digit the user reads is typed inside a translated string | `"1 कोशिका जीवित"` next to `"३६१ कोशिकाएँ"` — § 14, trap 3 |
 
 Items 1, 6 and 7 are the ones that make the difference between a fourth language
 costing an afternoon and costing a rewrite.
@@ -733,10 +734,10 @@ need an entry per string, this one needs an entry per *language*.
 चतुरङ्गम् uses it across four scripts; the verification is in its
 `परीक्षा/भाषापरीक्षा.zy` and `परीक्षा/चित्रपरीक्षा.zy` suites.
 
-### Two traps
+### Three traps
 
-Both are documented in the guide as intended behaviour, and neither is obvious
-when the mode is being driven by a language setting rather than written inline.
+All three are intended behaviour, and none is obvious when the mode is being
+driven by a language setting rather than written inline.
 
 1. **The mode reaches `io::write` and `<\ … \>`.** A program that writes a data
    file while a non-ASCII mode is active will create `dato४२.txt`, and a shell
@@ -757,8 +758,41 @@ when the mode is being driven by a language setting rather than written inline.
    localized and the *data* path is not, which is the right way round, but it
    means you cannot test one by looking at the other.
 
-The rule that falls out of both: **the mode belongs to output the user reads.**
-Switch back before anything a machine will read back.
+3. **A digit written inside a string is a letter, and stays ASCII.** The mode
+   governs the *printing of a number*, not the characters of a literal — so a
+   translated string that spells a number instead of interpolating one keeps
+   its ASCII digit in every script:
+
+   ```zymbol
+   cells_wrong(n) {
+       ? n == 1 { <~ "1 cell alive" }      // the digit is a letter
+       <~ "{n} cells alive"
+   }
+   cells_right(n) {
+       ? n == 1 { <~ "{n} cell alive" }    // the digit goes through the number
+       <~ "{n} cells alive"
+   }
+   #०९#
+   >> cells_wrong(1) " · " cells_wrong(361) ¶   // 1 cell alive · ३६१ cells alive
+   >> cells_right(1) " · " cells_right(361) ¶   // १ cell alive · ३६१ cells alive
+   ```
+
+   It hides exactly where the dispatcher sends you to write text: the singular
+   branch of a plural function, a `gen 0` header, a year typed into a label.
+   Each is invisible in every locale whose digits are already ASCII and obvious
+   the moment one that is not is switched on. GoL hit it three times
+   (`GoL/HALLAZGOS.md`, IDEA-GOL-008). A search finds candidates and does not
+   decide them: `grep -nE '"[^"{]*[0-9][^"]*"'` over the locale files of the
+   workspace's applications on 2026-09-29 gave 76 lines, and three were this
+   trap (囲碁's `"1 point"`, `"1 punto"`, `"captured 1 stone"` — harmless today,
+   since 囲碁 switches no digit script). The rest were keys (`"棋力.1"`), syntax
+   the user types in ASCII (`B3/S23`, and GoL's Hindi *"a digit from 0 to 8"*,
+   which describes that syntax) and spelled-out titles. So it is item 15 of the
+   checklist, read by a person, and not a gate.
+
+The rule that falls out of all three: **the mode belongs to output the user
+reads, and only a value can carry it.** Switch back before anything a machine
+will read back, and never type a digit the user will read.
 
 ---
 
