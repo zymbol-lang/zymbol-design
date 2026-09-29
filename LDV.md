@@ -9,7 +9,7 @@
 > applications then join, rather than leaving (§ 1). Not a list of the projects — the
 > `README.md` § Language-Driven Validation table is that, and § 5 here indexes their logs.
 >
-> **Method.** Every claim below was checked against the eight gap logs in the application
+> **Method.** Every claim below was checked against the nine gap logs in the application
 > repositories and against the harness that runs them — `zyquality/suites.toml`,
 > `zyquality/project/apps.toml`, `ZyFmtCheck/`, `ZyDDT/` — not against a previous edition of
 > this document. Where the practice has drifted from what it says about itself, § 5.2 says so
@@ -71,10 +71,11 @@ called an LDV project un-rerunnable, said it would be superseded, and said nothi
 one *and nothing should*. None of that survived contact with the workspace. Once built, an LDV
 application becomes part of the verification layer it was defined against:
 
-- `zyquality/project/apps.toml` registers seven of the eight, and `zyquality/suites.toml`
+- `zyquality/project/apps.toml` registers eight of the nine, and `zyquality/suites.toml`
   declares the `project` suite with **`gate = true`**. It runs ~40 goldens through both
   engines, and a red there fails `zyq suite`. Only ZethyCLI is absent, because it never grew a
-  suite of its own.
+  suite of its own. GoL is the one whose suite also agrees under the browser engine, so it is
+  the only application that can be graded on all three.
 - **`ZyFmtCheck`'s default body is the applications**, not the corpus: `./bin/zyfmtcheck` with
   no arguments formats them in a copy, compares code and comments, and re-runs their suites
   from that copy. Its README says why the corpus could not do this job — *"they are the richest
@@ -187,7 +188,7 @@ enforces is not a rule.
 change is not validated until the applications have been carried across it, and the carrying is
 a validation act in its own right: it exercises the change under real load, it walks the
 migration path a user will walk, and it finds what the original cycle could not. Nineteen
-migration commits across the eight projects say so, in four campaigns — v0.0.4's closed-block
+migration commits across the eight older projects say so, in four campaigns — v0.0.4's closed-block
 modules, v0.0.5's `<=` → `:` and then `=>`, the v0.0.7 standard library, and four separate
 v0.0.9 changes, of which the dictionary's `#(…)` notation touched four applications in a single
 day.
@@ -204,7 +205,7 @@ no file was going to be.
 
 So an application has a third use beyond discovery and regression: it is the reference body
 against which anything *new* is graded — a fourth engine, a highlighter, a formatter, a
-grammar. An instrument left to rot is a museum piece. None of the eight has been left to rot,
+grammar. An instrument left to rot is a museum piece. None of them has been left to rot,
 ZethyCLI included: a v0.0.3 project still being carried forward six releases later.
 
 ---
@@ -248,8 +249,8 @@ ZethyCLI included: a v0.0.3 project still being carried forward six releases lat
 ```
 
 The first three steps are the cycle that discovers. The fourth is the one that keeps: it runs
-for the rest of the project's life, on every commit, and it is why the eight applications are
-not eight finished artefacts but eight live ones.
+for the rest of the project's life, on every commit, and it is why the nine applications are
+not nine finished artefacts but nine live ones.
 
 The refactor step is not optional bookkeeping — it is the part that turns a symptom into a
 diagnosis. The corpus entry will be run by every engine on every commit for the rest of the
@@ -270,7 +271,7 @@ cooperating modules; there was nowhere else for it to live, so it hit all three.
 
 ### 5.1 The index
 
-Eight published projects, eight logs, ~5,800 lines of recorded findings. This table is the only
+Nine published projects, nine logs, ~6,400 lines of recorded findings. This table is the only
 index of them that exists.
 
 | Project | Version | Log | ID scheme |
@@ -283,8 +284,9 @@ index of them that exists.
 | [囲碁 (Igo)](https://github.com/zymbol-lang/zy-GO) | v0.0.8 | `HALLAZGOS_ES.md` | `HLZ-NNN` with a type column, plus `IDEA-NNN` |
 | [चतुरङ्गम् (Chaturanga)](https://github.com/zymbol-lang/zyChaturanga) | v0.0.9 | `HALLAZGOS_ES.md` | `HLZ-CHA-NNN` / `IDEA-CHA-NNN` — scoped from the first entry |
 | [ZyBank](https://github.com/zymbol-lang/ZyBank) | v0.0.9 | `HALLAZGOS.md` | `BUG-ZYB-NNN` / `GAP-ZYB-NNN` / `ERROR-ZYB-NNN` / `IDEA-ZYB-NNN` — the canonical form entire |
+| [GoL (Ζωή)](https://github.com/zymbol-lang/ZyGoL) | v0.0.9 | `HALLAZGOS.md` | `BUG-GOL-NNN` / `GAP-GOL-NNN` / `IDEA-GOL-NNN` — one sequence across the four types |
 
-The substance is consistent across all eight: a reading guide, findings with a reproduction and
+The substance is consistent across all nine: a reading guide, findings with a reproduction and
 a status, and a resolution history. Several logs cross-reference each other — Zofía opens with
 the lessons carried over from Serpiente, Serpiente's `HLZ-SRP-001` is discussed next to 囲碁's
 `HLZ-008` — which is the method working: a finding in one domain is worth stating in the
@@ -296,10 +298,10 @@ Recorded rather than quietly corrected, because the drift is real and its cost i
 
 - **Four file names for one artifact:** `GAPS.md`, `HALLAZGOS.md`, `HALLAZGOS_ES.md`,
   `hallazgos_es.md`. Decalogue point 6 names the log `HALLAZGOS.md`; that is literally true of
-  **two logs in eight** — Zofía's, which arrived at the name on its own, and ZyBank's, which
-  is the first to adopt it deliberately.
+  **three logs in nine** — Zofía's, which arrived at the name on its own, and ZyBank's and
+  GoL's, which adopted it deliberately.
 - **Three ID schemes**, and `TYPE-NNN` is now the plurality: `Gn` (1 project), `TYPE-NNN`
-  (4 — Zofía, ZyAudit, Serpiente and ZyBank), `HLZ-NNN` (3 — of which चतुरङ्गम् is the only one
+  (5 — Zofía, ZyAudit, Serpiente, ZyBank and GoL), `HLZ-NNN` (3 — of which चतुरङ्गम् is the only one
   scoped by project throughout).
 - **A live collision.** 囲碁's `HLZ-001`–`HLZ-011` and Hov veS's `HLZ-001`–`HLZ-003` are
   different findings sharing the same identifiers. A bare `HLZ-002` is ambiguous across the
@@ -324,7 +326,17 @@ asks for.
 `BUG` / `GAP` / `ERROR` / `IDEA` sections, a summary table with ID, module, context and status,
 and identifiers scoped from the first entry (`BUG-ZYB-001`). So the convention now exists in
 full somewhere, which is what makes the pending rename of the six older logs a mechanical job
-rather than a design question. The file-name drift is six against two.
+rather than a design question. The file-name drift is six against three.
+
+**GoL is the second, and the first to be escalated rather than started as LDV.** It was built
+as a measuring bench — § 6 says a fifth terminal grid game validates almost nothing, and the
+retro that opened it said the same — under the rule that it would become an LDV project only
+if its log turned out to be worth it. It did, and not because of the grid: four of its findings
+(`GAP-GOL-009`–`011`, `IDEA-GOL-012`) are one incapacity seen from four sides — a Zymbol program
+cannot test a Zymbol program without leaving the language. The domain that moved was not Life;
+it was *the application testing itself*, which no earlier project had been asked to do in
+Zymbol. Its identifiers are scoped from the first entry and numbered in one sequence across the
+four types, so `GOL-013` names one finding whatever its type.
 
 ---
 
@@ -334,7 +346,7 @@ The honest limits, so the method is not applied where it does not pay:
 
 - **It cannot be scheduled.** You cannot plan to find three silent VM bugs. You can only plan
   to build something big enough that they surface.
-- **The costs below are paid with AI assistance** (§ 7), which is what makes eight projects
+- **The costs below are paid with AI assistance** (§ 7), which is what makes nine projects
   possible rather than one. It changes the price of the instrument, not the nature of what the
   instrument finds — and it introduces one failure mode of its own, § 7.3.
 - **It has poor resolution.** A failure points at a region, not a line. Reducing an application
@@ -343,18 +355,21 @@ The honest limits, so the method is not applied where it does not pay:
   almost nothing. The projects that paid were the ones that moved: a CLI over an HTTP service,
   then a TUI, then scientific computing, then a persistent 361-point data structure threaded
   through modules with recursive traversal. Choosing a domain the language has already served
-  is the one reliable way to run the method and learn nothing.
+  is the one reliable way to run the method and learn nothing. GoL, the fifth grid game, is
+  the case that confirms it rather than the one that breaks it: the grid found little, and
+  what paid was a domain it moved into without setting out to — testing an application from
+  inside the language (§ 5.2).
 - **It is not the *first* alarm, and it has poor resolution as one.** The application is the
   microscope; the cheap layer is the alarm. A finding that lives only in the application is
   not protected, and that is decalogue point 7 — it stands. What does not stand is the
-  absolute this document used to state. Seven of the eight applications *are* in a gate
+  absolute this document used to state. Eight of the nine applications *are* in a gate
   (`zyquality/project`, `gate = true`), and `ZyFmtCheck`'s default body is the applications
   rather than the corpus. They are a second alarm, coarser and slower, and coarse is not the
   same as absent.
 - **The instrument has a maintenance bill, and it recurs.** An application in the gate must be
   carried across every breaking change to the language, in every project, before the release
   can close — nineteen migration commits so far, and the figure grows with each project added.
-  It is worth paying, and point 12 says why, but it is the reason a ninth project is a larger
+  It is worth paying, and point 12 says why, but it is the reason a ninth project was a larger
   decision than the first was.
 
 ---
@@ -379,8 +394,8 @@ about cost, and those claims are only readable if the reader knows who is paying
 test as *"expensive to build — months of work"*, and § 6 opens with *"it cannot be
 scheduled"*. Both remain true of the **discovery** — a finding still closes against a release,
 and no amount of assistance schedules an unknown-unknown.
-What changed is the price of the *application*: eight of them exist across v0.0.3–v0.0.9, in
-five natural languages and five unrelated domains. Without AI assistance that number would be
+What changed is the price of the *application*: nine of them exist across v0.0.3–v0.0.9, in
+six natural languages and five unrelated domains. Without AI assistance that number would be
 one or two, and § 6's warning that *"it scales with domain distance, not with size"* would be
 an untested principle instead of a measured result — a third terminal game validates almost
 nothing, and knowing that required building enough of them to see it.
