@@ -28,7 +28,7 @@ Not bugs it found — features and rules that did not exist before it.
 | **囲碁 (GO)** | v0.0.8 | copy-on-write for aggregates (`HLZ-012`/`HLZ-014` — the value model both Rust engines use today), output parameters of a module function under the VM, negative constants in a module body |
 | **Chaturanga** | v0.0.9 | the loop-specifier rule — *a thing is a count or a condition, and anything else is refused*: **no truthiness** — and the descending-range warning |
 | **ZyBank** | v0.0.9 | `ERROR-ZYB-002`, from which came the function-capture rule — and therefore `MEM-2` |
-| **GoL** | v0.0.9 | fourteen findings; the three engine divergences are closed or superseded, the harness passes CLI arguments to the browser engine, and four language gaps stay open — all four about an application testing itself |
+| **GoL** | v0.0.9 | fourteen findings, nine closed by 2026-09-29: the four engine divergences (one superseded by MEM-2), the browser engine's shell stand-ins, CLI arguments for the browser harness, a third digit-script trap in `USERAPPI18N.md`, and every self-asserting suite in the workspace reporting its result as an exit code. Four language gaps stay open — all four about an application testing itself — and have decisions (D2–D5) waiting to be built |
 | **Hov veS** | v0.0.5 | multi-module orchestration and 3-language i18n at application level |
 
 `$*` reached the lexer, the parser, the tree-walker, the VM, the compiler, the
