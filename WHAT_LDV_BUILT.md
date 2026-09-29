@@ -10,8 +10,8 @@
 > `GO`, `Chaturanga`, `ZyBank`, `GoL` and `klingon_galaxy`. It reads their
 > **index tables and resolution rows**, not every finding in full: a claim below
 > is as good as the row it came from, and a row that misdescribed its own fix
-> would be reproduced here. What is *not* in it: eight of the nine logs are
-> indexed by `LDV.md` § 5, which remains the authority on where each lives.
+> would be reproduced here. All nine logs are indexed by `LDV.md` § 5 — GoL's
+> since 2026-09-29 — which remains the authority on where each lives.
 
 ---
 
@@ -28,7 +28,7 @@ Not bugs it found — features and rules that did not exist before it.
 | **囲碁 (GO)** | v0.0.8 | copy-on-write for aggregates (`HLZ-012`/`HLZ-014` — the value model both Rust engines use today), output parameters of a module function under the VM, negative constants in a module body |
 | **Chaturanga** | v0.0.9 | the loop-specifier rule — *a thing is a count or a condition, and anything else is refused*: **no truthiness** — and the descending-range warning |
 | **ZyBank** | v0.0.9 | `ERROR-ZYB-002`, from which came the function-capture rule — and therefore `MEM-2` |
-| **GoL** | — | ten findings, **all open**: four of them are language gaps, not bugs |
+| **GoL** | v0.0.9 | fourteen findings; the three engine divergences are closed or superseded, the harness passes CLI arguments to the browser engine, and four language gaps stay open — all four about an application testing itself |
 | **Hov veS** | v0.0.5 | multi-module orchestration and 3-language i18n at application level |
 
 `$*` reached the lexer, the parser, the tree-walker, the VM, the compiler, the
@@ -86,8 +86,9 @@ exist nowhere else. It does.
 
 ## 4. What is open
 
-`GoL` is the newest project and the only one whose log is entirely open. Four of
-its ten are language gaps:
+`GoL` is the newest project, escalated to LDV on 2026-09-29. Its divergences
+closed first — two under ZyDDT's own decisions, one in `zyjs` directly — and four
+of its fourteen findings are language gaps that remain open:
 
 | | |
 |---|---|
