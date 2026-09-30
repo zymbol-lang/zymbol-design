@@ -28,7 +28,7 @@ Not bugs it found — features and rules that did not exist before it.
 | **囲碁 (GO)** | v0.0.8 | copy-on-write for aggregates (`HLZ-012`/`HLZ-014` — the value model both Rust engines use today), output parameters of a module function under the VM, negative constants in a module body |
 | **Chaturanga** | v0.0.9 | the loop-specifier rule — *a thing is a count or a condition, and anything else is refused*: **no truthiness** — and the descending-range warning |
 | **ZyBank** | v0.0.9 | `ERROR-ZYB-002`, from which came the function-capture rule — and therefore `MEM-2` |
-| **GoL** | v0.0.9 | fourteen findings, nine closed by 2026-09-29: the four engine divergences (one superseded by MEM-2), the browser engine's shell stand-ins, CLI arguments for the browser harness, a third digit-script trap in `USERAPPI18N.md`, and every self-asserting suite in the workspace reporting its result as an exit code. Four language gaps stay open — all four about an application testing itself — and have decisions (D2–D5) waiting to be built |
+| **GoL** | v0.0.9 | the error a program can build and read: **`##Kind("message")`** constructs the soft error the standard modules return, and **`##Kind(m) =>`** reads its message back — the first pattern in the language that creates a name. On the way: the browser engine's shell stand-ins, CLI arguments for the browser harness, `#?` counting code points, a third digit-script trap, every self-asserting suite reporting its result as an exit code. Three gaps about an application testing itself stay open, decided (D2, D4, D5) and not yet built |
 | **Hov veS** | v0.0.5 | multi-module orchestration and 3-language i18n at application level |
 
 `$*` reached the lexer, the parser, the tree-walker, the VM, the compiler, the
@@ -87,12 +87,12 @@ exist nowhere else. It does.
 ## 4. What is open
 
 `GoL` is the newest project, escalated to LDV on 2026-09-29. Its divergences
-closed first — two under ZyDDT's own decisions, one in `zyjs` directly — and four
-of its fourteen findings are language gaps that remain open:
+closed first — two under ZyDDT's own decisions, one in `zyjs` directly — and one
+of its language gaps, `GAP-GOL-003`, closed the same day with the error
+constructor and the pattern that reads it (`GAP-GOL-016`). Three remain open:
 
 | | |
 |---|---|
-| `GAP-GOL-003` | a program cannot construct an error value |
 | `GAP-GOL-009` | an interactive Zymbol program cannot be tested from Zymbol |
 | `GAP-GOL-010` | a program cannot capture what its own code prints |
 | `GAP-GOL-011` | `<\ … \>` discards the exit status of what it ran |
