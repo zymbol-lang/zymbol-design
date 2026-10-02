@@ -57,6 +57,8 @@ to documents.
 | `zyddt ask` | did all three answer alike |
 | `zyddt axis` + `expect` | did they agree **wrongly** — the only one that can |
 | `zyddt premises` | does every premise have a cell, and every cell a premise |
+| `zyddt findings` | which findings are open, what holds each one, and which nothing watches |
+| `open_finding` on a cell | a red that is a filed, open finding: KNOWN, not a regression — and red the day it passes |
 | `zyquality/cost` | auto-free, and complexity, as ratios against their own control |
 | `cargo test` | each crate against its own contracts |
 
@@ -84,6 +86,10 @@ line up, not that a premise still says what it said.
 
 - Run `zyddt premises`, `zyddt axis` and `zyq suite`. A suite that could not run
   exits **2**, never 0: nothing ran is not nothing failed.
+- A finding you leave open gets a cell that declares it (`open_finding`), not a
+  red cell nobody decided and not no cell at all — that is how red stays a
+  regression. And read the KNOWN lines: a debt you just paid turns red until the
+  ficha is closed.
 - **Check the consequence, not the message.** Which branch executed, which value
   came out, which exit code — a diagnostic that matches proves the diagnostic
   matches (move 3).
