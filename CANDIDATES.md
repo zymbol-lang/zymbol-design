@@ -95,7 +95,7 @@ this file, and there is no third copy.
 | id | would become | statement | model | state |
 |---|---|---|---|---|
 | [C-TYP-1](#c-typ-1) | `TYP-1` | A value carries a type; a name does not | § 5.1 | `measured` |
-| [C-TYP-2](#c-typ-2) | `TYP-2` | What inference reaches, it refuses | § 5.1–5.2 | `measured` — **splits in two** |
+| [C-TYP-2](#c-typ-2) | `TYP-2` | What inference reaches, it refuses | § 5.1–5.2 | **`promoted`** 2026-10-06 — `PREMISES.md` § 5b, TYP-2; the array half was already COL-3 |
 | [C-TYP-3](#c-typ-3) | `TYP-3` | A type change on a name is a warning, not an error | § 5.3 | `measured` — **decision needed first** |
 | [C-TYP-4](#c-typ-4) | `TYP-4` | Nothing is coerced | § 5.1 | `measured` |
 | [C-FUN-1](#c-fun-1) | `FUN-1` | Arity is fixed | § 6 | `measured` |
@@ -136,6 +136,12 @@ not a phrase the language has.
 ---
 
 ### C-TYP-2
+
+**Promoted** 2026-10-06 → `PREMISES.md` § 5b, **TYP-2**. The author decided on
+2026-10-05 (ZYJS-048) that the argument-type half is *refused statically* and that
+the Rust behaviour is the rule; `zyjs` now infers parameter types and refuses the
+call before anything runs. The array half was already COL-3. What follows is the
+entry as it stood when it was decided, and is not edited again.
 
 **Statement** — What inference reaches, it refuses. A parameter's type comes from
 how the body uses it; an array is checked element by element against the first.
