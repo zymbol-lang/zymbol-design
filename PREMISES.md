@@ -776,7 +776,11 @@ candidate was already a premise, COL-3, and holds statically in all three.
 arithmetic makes it a number, `&&`, `||` and `!` a Bool, an ordering against a
 literal that literal's type, an index into a collection the body built a
 position or a key, and passing it to a function declared before it that
-function's parameter type. A call that passes a value of another type is
+function's parameter type. A use requires something of a parameter only when
+every path through the body goes through it: a use in one branch of a `?`, in
+the body of a `@`, under `!?`, or in one arm of a `??` requires nothing — a
+function may treat each type its own way, and the language stays variant. A
+call that passes a value of another type is
 **refused statically** — before anything in the program runs, so nothing the
 program would have printed or written happens. What inference does not reach is
 not refused statically: the program runs, and the operation fails where it
