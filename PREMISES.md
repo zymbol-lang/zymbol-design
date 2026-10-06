@@ -755,6 +755,44 @@ the same shape as `zyquality/cost/`, which measures a ratio no cell can assert.
 
 ---
 
+## 5b. Types
+
+Distilled on 2026-10-06 from `CANDIDATES.md` § C-TYP-2, the first of the four
+type candidates to be decided. It is numbered 5b so that §§ 6 and 7 keep the
+numbers other documents cite them by. `MODEL.md` § 5.3 says no premise about
+typing can be written until C-TYP-3 is decided; TYP-2 was decided first, and
+does not depend on it — it is about what a call may pass, not about what a type
+change on a name is.
+
+### TYP-2 — What inference reaches about a parameter is refused before the program runs
+
+**Source** — `CANDIDATES.md` § C-TYP-2, decided by the author on 2026-10-05
+(`ZyDDT/HALLAZGOS/zyjs.md`, ZYJS-048): of the candidate's two questions, the
+argument-type half is *refused statically*, and the Rust engines' behaviour is
+the rule rather than a liberty of one implementation. The array half of the same
+candidate was already a premise, COL-3, and holds statically in all three.
+
+**Normative** — A parameter's type is what the body's use of it requires:
+arithmetic makes it a number, `&&`, `||` and `!` a Bool, an ordering against a
+literal that literal's type, an index into a collection the body built a
+position or a key, and passing it to a function declared before it that
+function's parameter type. A call that passes a value of another type is
+**refused statically** — before anything in the program runs, so nothing the
+program would have printed or written happens. What inference does not reach is
+not refused statically: the program runs, and the operation fails where it
+fails.
+
+**Measured** (2026-10-06, all three engines) — **holds, statically**: with
+`f(v) { <~ v + 1 }`, `>> f("a") ¶` is `error: argument 1 has type String, but
+function 'f' expects Number`, and a `>> "antes" ¶` written before the call does
+not print. The boundary is where the candidate put it: the type of a parameter
+*of a parameter* (`aplica(g, v) { <~ g(v) }` called with `doble` and `"hola"`)
+is not reached, and that program fails at run time in all three.
+
+**Held by** — `refusal/argument-type-*`
+
+---
+
 ## 6. Stated but not yet declared
 
 Things the author has said, which are **not** premises until restated here as
