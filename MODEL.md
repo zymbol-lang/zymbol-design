@@ -453,17 +453,19 @@ rather than APL, and a memory model borrowed from nothing.
 **This document creates nothing in layer A.**
 
 **A — declared and measurable.** MEM-1…MEM-8, COL-1…COL-7, SYM-1…SYM-8,
-AGT-1…AGT-5 in `PREMISES.md`, crossed against their cells by `zyddt premises`.
+AGT-1…AGT-5 and TYP-2 in `PREMISES.md`, crossed against their cells by `zyddt
+premises`.
 Every **Rule** paragraph in § 3 cites these and states nothing beyond them.
 
 **B — measured, not declared.** Registered in `CANDIDATES.md`, each with probes
-and the answer all three engines give: `C-TYP-1`…`C-TYP-4` (§ 5) and
-`C-FUN-1`…`C-FUN-3` (§ 6). Named here, not restated — a fact kept in two places
+and the answer all three engines give: `C-TYP-1`, `C-TYP-3` and `C-TYP-4` (§ 5;
+`C-TYP-2` became TYP-2 on 2026-10-06) and `C-FUN-1`…`C-FUN-3` (§ 6). Named here, not restated — a fact kept in two places
 drifts.
 
 One measured fact is **not** a candidate because it is already normative: a
 lambda's write does not reach its container while a block's does (§ 3.2). MEM-6
-states it; no cell holds it. That is a missing cell, not a missing premise.
+states it, and since 2026-10-06 `isolation/lambda-write-stays-inside` holds it: it
+was a missing cell, not a missing premise.
 
 **C — interpretation, and it stays here.** The rule of § 2.1; that the eight
 refusals of § 2.2 are one refusal; that the five properties are five applications
@@ -476,10 +478,10 @@ nothing can contradict.
 
 | open | what it blocks | registered as |
 |---|---|---|
-| is the type-change warning deliberate? (§ 5.3) | every premise about typing | `C-TYP-3` |
-| *refused*, or *refused statically*? (§ 5.2) | the same, rule by rule | `C-TYP-2` |
+| is the type-change warning deliberate? (§ 5.3) | a premise about a name whose type changes | `C-TYP-3` |
+| ~~*refused*, or *refused statically*? (§ 5.2)~~ | decided 2026-10-05: statically — TYP-2 | ~~`C-TYP-2`~~ |
 | is the absence of composition a rule or a gap? (§ 6) | whether `FUN-2` can exist | `C-FUN-2` |
-| the lambda's write direction has no cell | an engine whose lambda wrote through would pass all 12 cells MEM-6 names | `CANDIDATES.md` § 5 |
+| ~~the lambda's write direction has no cell~~ | held since 2026-10-06 by `isolation/lambda-write-stays-inside` | ~~`CANDIDATES.md` § 6~~ |
 | which door a new capability comes through | the v0.0.7 symbol-vs-module rubric is homeless; `SYMBOLS.md` § 17 has eight rules for the mark side and none for the module side | `C-GRW-1` |
 
 Two limits of the evidence, so they are not mistaken for strength: the type-change

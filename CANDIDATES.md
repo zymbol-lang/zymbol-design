@@ -336,7 +336,7 @@ id (§ 2, question 3).
 
 | what | where it stands |
 |---|---|
-| **MEM-6's write direction** — a lambda writes only the names it declares, while a block writes through to its container | **Normative since 2026-09-21.** No cell holds it: an engine whose lambda wrote through would pass all 12 cells MEM-6 names. The missing cell has the shape of `write-inside-a-function-does-not-escape`, itself found by reading the premises against the cells rather than by a failure |
+| **MEM-6's write direction** — a lambda writes only the names it declares, while a block writes through to its container | **Normative since 2026-09-21, held since 2026-10-06** by `isolation/lambda-write-stays-inside`, which asks both rows of MEM-6's table and checks itself. Until then an engine whose lambda wrote through would have passed all 12 cells MEM-6 named. Found, like `write-inside-a-function-does-not-escape`, by reading the premises against the cells rather than by a failure |
 
 ## 7. Before promoting one
 
