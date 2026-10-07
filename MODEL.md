@@ -326,9 +326,11 @@ nothing else.
 sense — that term names a system with annotations and explicit boundaries between
 typed and untyped regions, and Zymbol has neither.
 
-**No premise declares any of this.** It is the largest gap in the design.
-Everything here is measured or interpreted, never normative; the candidates are
-`C-TYP-1`…`C-TYP-4` in `CANDIDATES.md`.
+**One premise declares part of this**: TYP-2 (2026-10-06) — what inference
+reaches about a parameter is refused before the program runs, and inference
+reaches only what every path through the body requires. The rest is measured or
+interpreted, never normative; the candidates left are `C-TYP-1`, `C-TYP-3` and
+`C-TYP-4` in `CANDIDATES.md`.
 
 ### 5.1 The four rules, measured
 
@@ -369,11 +371,13 @@ Measured 2026-09-21, and **the split is per rule, not per engine**:
 
 | | zytw | zyvm | zyjs |
 |---|---|---|---|
-| `f(1, "x")` against `f(a,b){<~a+b}` | static | static | **at run time**, naming the operator |
+| `f(1, "x")` against `f(a,b){<~a+b}` | static | static | **static** since 2026-10-05 (ZYJS-048); at run time before, naming the operator |
 | `[1, "dos"]` | static | static | **static** |
 
 All three refuse both. Array homogeneity is refused **statically in all three
-engines**; argument type is refused statically in the Rust engines only.
+engines**; argument type was refused statically in the Rust engines only, until
+2026-10-05, when `zyjs` got the Rust analyser's parameter inference (ZYJS-048) and
+the author decided the static refusal is the rule (TYP-2).
 
 **A property of the Rust engines is not a property of Zymbol** — and the converse
 trap is just as real: `REFERENCE.md` says the browser engine *"has no type
@@ -392,8 +396,9 @@ warning and then dies with `Runtime error: + is arithmetic only`. The analyser
 predicted the failure and let the program run into it.
 
 Whether that is deliberate is recorded nowhere, and until it is, no premise about
-typing can be written: the warning is where the static half stops. Registered as
-`C-TYP-3`.
+a name whose type changes can be written: the warning is where the static half
+stops. Registered as `C-TYP-3`. TYP-2, about what a call may pass, did not have to
+wait for it.
 
 ---
 
