@@ -59,7 +59,7 @@ error, not a runtime one.
 is read inside a function body; `PI = 3` after `PI := 3.14` is
 `error: cannot reassign constant 'PI'`.
 
-**Held by** — `isolation/const-is-global`.
+**Held by** — `isolation/const-*`, `isolation/an-unused-constant`.
 
 ---
 
@@ -99,6 +99,7 @@ instead of two"*.
 `isolation/file-var-nested`,
 `isolation/lambda-inside-a-function-cannot-reach-the-file`,
 `isolation/block-var-*`, `isolation/caller-local-*`,
+`isolation/write-inside-a-function-does-not-escape`,
 `isolation/parameter-is-the-door`. All green since 2026-09-13.
 
 ---
@@ -153,8 +154,9 @@ The 2026-09-12 entry said the fence *was* enforced. It was verified with
 `HOW_TO_CHANGE_ZYMBOL.md` § 2 lists as way out number three. A static error two
 engines ignore at run time is not a fence.
 
-**Held by** — `modularity/module-state-is-not-exportable` (**red**: `GLB-009`),
-`modularity/module-functions-own-the-state` (green: the legitimate half).
+**Held by** — `modularity/module-state-is-not-exportable`,
+`modularity/module-functions-own-the-state` (the legitimate half). Both green,
+`GLB-009` fixed on 2026-09-13.
 
 ---
 
@@ -177,7 +179,8 @@ static errors, each naming the other half.
 **Held by** — `isolation/output-parameter-marked-both-ends`,
 `isolation/working-copy-stays-inside`,
 `isolation/output-parameter-unmarked-at-call`,
-`isolation/output-mark-without-an-output-parameter`.
+`isolation/output-mark-without-an-output-parameter`,
+`isolation/output-argument-must-be-a-variable`.
 
 A `Held by` names cells as globs over `axis/cell`; `zyddt premises` requires
 each one to match at least one cell that declares this same id back.
@@ -305,15 +308,18 @@ file's top-level names.
 `isolation/light-block-does-not-leak`,
 `isolation/light-block-modifies-its-strong`,
 `isolation/light-siblings-are-independent`,
-`isolation/hot-definition-anchors-above`, and the cells it shares with MEM-2:
+`isolation/hot-definition-anchors-above`, `isolation/lambda-write-stays-inside`,
+`isolation/*underscore*`, and the cells it shares with MEM-2:
 `isolation/block-var-*`, `isolation/caller-local-*`.
 
-**The write direction has no cell yet.** `light-block-modifies-its-strong` holds
-one half of the table above and nothing holds the other: an engine in which a
-lambda wrote through to its container would pass every cell this premise names.
-The missing cell is the exact shape of `write-inside-a-function-does-not-escape`,
-which was itself found on 2026-09-13 by reading the premises against the cells
-rather than by a failure.
+**The write direction** is held since 2026-10-06 by
+`isolation/lambda-write-stays-inside`, which asks both rows of the table above
+and checks itself: a lambda that wrote through, or a block that did not, ends in
+a `##Div`. Until then `light-block-modifies-its-strong` held one half and nothing
+held the other — an engine in which a lambda wrote through to its container
+passed every cell this premise named. It was found, like
+`write-inside-a-function-does-not-escape` on 2026-09-13, by reading the premises
+against the cells rather than by a failure.
 
 ---
 
@@ -366,9 +372,10 @@ diverging, and every golden and refusal form held.
 
 **Held by** — `isolation/two-parameters-alike`,
 `isolation/parameter-named-as-its-function`,
-`isolation/variable-and-function-alike`, `isolation/function-defined-twice`.
-All four **red** as of 2026-09-12: they are the declared debt of a decision
-taken, not a defect nobody noticed.
+`isolation/variable-and-function-alike`, `isolation/function-defined-twice`,
+`isolation/loop-iterator-*`. The first four were **red** when declared on
+2026-09-12 — the declared debt of a decision taken, not a defect nobody noticed —
+and are green since the implementation the same day.
 
 ---
 
@@ -422,7 +429,7 @@ operator behaves the same on both — `#` is the meta mark, not a second type.
 **Measured** (2026-09-12) — **holds, statically**: `[1, "dos"]` is `error: array
 element 2 has type String, but expected Int`; `#[1, "dos"]` passes.
 
-**Held by** — `collections/array-is-checked`, `collections/declared-mix-is-not`.
+**Held by** — `collections/array-is-checked`, `collections/declared-mix-is-not`, `collections/lambdas-*`.
 
 ---
 
@@ -435,9 +442,10 @@ element 2 has type String, but expected Int`; `#[1, "dos"]` passes.
 every depth; **ordering does not exist**, because a positional heterogeneous
 value has no defensible one.
 
-**Measured** (2026-09-12, both engines) — holds: `cannot modify tuple 't':
-tuples are immutable`, and `(1,2) < (3,4)` is `cannot compare values with
-operator 'Lt'`.
+**Measured** (2026-09-12, both engines; re-measured 2026-10-06, all three) —
+holds: `cannot modify tuple 't': tuples are immutable`, and `(1,2) < (3,4)` is
+`cannot compare values with operator '<': Tuple and Tuple`, a `##Type` — the
+operator as the program writes it since GLB-028, the kind since GLB-091.
 
 **Held by** — `collections/tuple-is-immutable`, `collections/tuple-has-no-ordering`, `collections/tuple-compares-equal`.
 
@@ -543,8 +551,8 @@ lexicon: identifiers are free in any script.
 **Measured** (2026-09-12) — holds. `if x > 1 { }` and `f() { return 1 }` are
 parse errors, and `!=` is refused by name: `'!=' is not a valid Zymbol
 operator`. Worth noting the asymmetry: `!=` gets a diagnostic that states the
-rule, the words get `unexpected token: LBrace`, which refuses correctly and
-explains nothing.
+rule, the words get `unexpected token: '{'` (re-measured 2026-10-06; it was
+`LBrace`), which refuses correctly and explains nothing.
 
 **Held by** — `refusal/not-equal-is-not-a-symbol`.
 
@@ -583,9 +591,11 @@ argument or label never follows it. This is why labelled break is `@:outer!` and
 not `@!outer`.
 
 **Measured** (2026-09-12) — holds: `@:outer!` parses, `@!outer` does not — it is
-read as a bare break followed by an expression, and fails with `undefined
-variable 'outer'`. Correct refusal, and again a message that does not state the
-rule it is enforcing.
+read as a bare break followed by an expression, and failed with `undefined
+variable 'outer'`: a correct refusal, with a message that did not state the rule.
+Re-measured 2026-10-06, all three engines: `'@! outer' is a bare '@!' and a name
+that is read and discarded, not a labelled jump` — the message now says what
+happened.
 
 **Held by** — `refusal/modality-before-its-label`. Unlike its six siblings this
 one leaves a trace a program can carry, so it was the one that could have a cell
@@ -759,10 +769,10 @@ the same shape as `zyquality/cost/`, which measures a ratio no cell can assert.
 
 Distilled on 2026-10-06 from `CANDIDATES.md` § C-TYP-2, the first of the four
 type candidates to be decided. It is numbered 5b so that §§ 6 and 7 keep the
-numbers other documents cite them by. `MODEL.md` § 5.3 says no premise about
-typing can be written until C-TYP-3 is decided; TYP-2 was decided first, and
+numbers other documents cite them by. `MODEL.md` § 5.3 said, when TYP-2 was
+decided, that no premise about typing could be written until C-TYP-3 was. TYP-2
 does not depend on it — it is about what a call may pass, not about what a type
-change on a name is.
+change on a name is — and § 5.3 says so since 2026-10-07.
 
 ### TYP-2 — What inference reaches about a parameter is refused before the program runs
 
@@ -773,9 +783,9 @@ the rule rather than a liberty of one implementation. The array half of the same
 candidate was already a premise, COL-3, and holds statically in all three.
 
 **Normative** — A parameter's type is what the body's use of it requires:
-arithmetic makes it a number, `&&`, `||` and `!` a Bool, an ordering against a
-literal that literal's type, an index into a collection the body built a
-position or a key, and passing it to a function declared before it that
+arithmetic makes it a number, the left side of `&&` and `||`, and the operand
+of `!`, a Bool, an ordering against a literal that literal's type, an index into
+a collection the body built a position or a key, and passing it to a function declared before it that
 function's parameter type. A use requires something of a parameter only when
 every path through the body goes through it: a use in one branch of a `?`, in
 the body of a `@`, under `!?`, or in one arm of a `??` requires nothing — a
@@ -792,6 +802,15 @@ function 'f' expects Number`, and a `>> "antes" ¶` written before the call does
 not print. The boundary is where the candidate put it: the type of a parameter
 *of a parameter* (`aplica(g, v) { <~ g(v) }` called with `doble` and `"hola"`)
 is not reached, and that program fails at run time in all three.
+
+**Measured** (2026-10-06, all three engines, after GLB-101 and GLB-103) —
+**holds**: a function that treats each type in its own branch, `f(v) { t = v#?
+? t[1] == "###" { <~ v + 1 } _? t[1] == "##\"" { <~ v "1" } }`, accepts `f(1)`
+and `f("a")` and answers `2` and `a1`; so does a guard that returns early, a use
+in the body of a `@`, under `!?` or in one arm of a `??`; and `f(a, b) { <~ a &&
+b }` accepts `f(#0, 5)`, which answers `#0`. Both branches of a `?` and its `_`,
+every arm of a `??`, and a use every path goes through are still refused before
+the program runs.
 
 **Held by** — `refusal/argument-type-*`
 
@@ -835,11 +854,14 @@ attributing it is exactly what § 6 forbids.
 
 ### Open questions this domain raises
 
-- ~~Is a lambda a self-contained space, like a function?~~ **Decided
-  2026-09-12: it is strong.** See MEM-6.
-- **Does MEM-2 apply to reading, to writing, or to both?** Today the write side
-  is isolated and the read side is not; the premise as written covers both
-  ("vistas o modificadas"), which is the reading this document takes.
+- ~~Is a lambda a self-contained space, like a function?~~ **Decided: it is
+  light** — it reads the scope it is written in and writes only the names it
+  declares (MEM-6). The answer first written here on 2026-09-12, «strong», was
+  the error of precision MEM-6's History records.
+- ~~Does MEM-2 apply to reading, to writing, or to both?~~ **Both, since
+  2026-09-13**: a file variable read from inside a named function is a static
+  error in all three engines, and a write inside a call never escapes it — the
+  reading this document took from «vistas o modificadas».
 
 ---
 
@@ -863,9 +885,11 @@ Three things follow:
 1. **A premise is never edited as part of fixing something.** If an engine
    cannot meet a premise, the engine is wrong, or the premise is changed on
    purpose, first, alone, and by the author.
-2. **A red cell is not a reason to weaken a premise.** MEM-2 has four red cells
-   today. They stay red until the author decides, and the decision is recorded
-   here with its date.
+2. **A red cell is not a reason to weaken a premise.** MEM-2 had four red cells
+   on 2026-09-12. They stayed red until the author decided, the decision was
+   recorded here with its date, and they went green with the implementation on
+   2026-09-13.
 3. **A description that disagrees with a premise is a defect in the
-   description.** `LLM.md` rule 5 disagrees with MEM-2 as of 2026-09-12, and
-   that is a bug in `LLM.md`, not evidence about the rule.
+   description.** `LLM.md` rule 5 disagreed with MEM-2 from 2026-09-12 until it
+   was corrected on 2026-10-07, and that was a bug in `LLM.md`, not evidence
+   about the rule.
