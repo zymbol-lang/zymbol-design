@@ -9,7 +9,7 @@
 > applications then join, rather than leaving (§ 1). Not a list of the projects — the
 > `README.md` § Language-Driven Validation table is that, and § 5 here indexes their logs.
 >
-> **Method.** Every claim below was checked against the nine gap logs in the application
+> **Method.** Every claim below was checked against the ten gap logs in the application
 > repositories and against the harness that runs them — `zyquality/suites.toml`,
 > `zyquality/project/apps.toml`, `ZyFmtCheck/`, `ZyDDT/` — not against a previous edition of
 > this document. Where the practice has drifted from what it says about itself, § 5.2 says so
@@ -71,11 +71,11 @@ called an LDV project un-rerunnable, said it would be superseded, and said nothi
 one *and nothing should*. None of that survived contact with the workspace. Once built, an LDV
 application becomes part of the verification layer it was defined against:
 
-- `zyquality/project/apps.toml` registers eight of the nine, and `zyquality/suites.toml`
-  declares the `project` suite with **`gate = true`**. It runs ~40 goldens through both
+- `zyquality/project/apps.toml` registers nine of the ten, and `zyquality/suites.toml`
+  declares the `project` suite with **`gate = true`**. It runs ~60 goldens through both
   engines, and a red there fails `zyq suite`. Only ZethyCLI is absent, because it never grew a
-  suite of its own. GoL is the one whose suite also agrees under the browser engine, so it is
-  the only application that can be graded on all three.
+  suite of its own. GoL and ZyBF are the ones whose suites also agree under the browser engine,
+  so they are the applications that can be graded on all three.
 - **`ZyFmtCheck`'s default body is the applications**, not the corpus: `./bin/zyfmtcheck` with
   no arguments formats them in a copy, compares code and comments, and re-runs their suites
   from that copy. Its README says why the corpus could not do this job — *"they are the richest
@@ -249,8 +249,8 @@ ZethyCLI included: a v0.0.3 project still being carried forward six releases lat
 ```
 
 The first three steps are the cycle that discovers. The fourth is the one that keeps: it runs
-for the rest of the project's life, on every commit, and it is why the nine applications are
-not nine finished artefacts but nine live ones.
+for the rest of the project's life, on every commit, and it is why the applications are not
+finished artefacts but live ones.
 
 The refactor step is not optional bookkeeping — it is the part that turns a symptom into a
 diagnosis. The corpus entry will be run by every engine on every commit for the rest of the
@@ -271,7 +271,7 @@ cooperating modules; there was nowhere else for it to live, so it hit all three.
 
 ### 5.1 The index
 
-Nine published projects, nine logs, ~6,400 lines of recorded findings. This table is the only
+Ten published projects, ten logs, ~6,600 lines of recorded findings. This table is the only
 index of them that exists.
 
 | Project | Version | Log | ID scheme |
@@ -285,12 +285,22 @@ index of them that exists.
 | [चतुरङ्गम् (Chaturanga)](https://github.com/zymbol-lang/zyChaturanga) | v0.0.9 | `HALLAZGOS_ES.md` | `HLZ-CHA-NNN` / `IDEA-CHA-NNN` — scoped from the first entry |
 | [ZyBank](https://github.com/zymbol-lang/ZyBank) | v0.0.9 | `HALLAZGOS.md` | `BUG-ZYB-NNN` / `GAP-ZYB-NNN` / `ERROR-ZYB-NNN` / `IDEA-ZYB-NNN` — the canonical form entire |
 | [GoL (Ζωή)](https://github.com/zymbol-lang/ZyGoL) | v0.0.9 | `HALLAZGOS.md` | `BUG-GOL-NNN` / `GAP-GOL-NNN` / `IDEA-GOL-NNN` — one sequence across the four types |
+| [ZyBF](https://github.com/zymbol-lang/ZyBF) | v0.0.10 | `HALLAZGOS.md` | `GAP-BF-NNN` / `ERROR-BF-NNN` / `IDEA-BF-NNN` — one sequence; a **mini LDV** |
 
-The substance is consistent across all nine: a reading guide, findings with a reproduction and
+The substance is consistent across all ten: a reading guide, findings with a reproduction and
 a status, and a resolution history. Several logs cross-reference each other — Zofía opens with
 the lessons carried over from Serpiente, Serpiente's `HLZ-SRP-001` is discussed next to 囲碁's
 `HLZ-008` — which is the method working: a finding in one domain is worth stating in the
 vocabulary of the next.
+
+**A mini LDV** is the cycle at the smallest size that still runs it: one short program in one
+domain, its log in the canonical form of § 5.2, its suite in the gate. ZyBF, declared one for
+v0.0.10 on 2026-10-09, is a Brainf*** interpreter in 96 lines whose `.` needed what the language
+did not have — the character of a code computed at run time. Its three findings all closed by
+changing the language in the same release (GLB-109, `##'expr`; GLB-110; GLB-111), and the program
+then used the change: 75 lines, the same 13 tests against an independent oracle. Small is not a
+lesser form of the method; it is the size at which one finding is easiest to trace from the
+application to the language and back.
 
 ### 5.2 Where the form has drifted
 
