@@ -311,7 +311,7 @@ Formas semi-transparentes, con el excedente declarado:
 #### 4.1 Prefijo (proclítico al operando)
 
 `>>` `>>!` `>>?` `>>~` `>>|` `<<` `<<|` `<<|?` `<#` `#>` `<~` `?` `_?` `??` `@` `!?` `##.`
-`###` `##!` `#|` `#.N` `#!N` `#,` `#^` `><` `\` `!`
+`###` `##!` `##'` `#|` `#.N` `#!N` `#,` `#^` `><` `\` `!`
 
 #### 4.2 Sufijo (enclítico al operando)
 
@@ -600,8 +600,9 @@ Duplicar a `##` mueve del nivel meta al nivel de tipo propiamente dicho.
 | `#.N\|x\|` / `#!N\|x\|` | redondear / truncar N decimales | valor → presentación |
 | `#,\|x\|` / `#^\|x\|` | formato de coma / científico | valor → presentación |
 | `#d₀d₉#` | cambio de modo numérico | script de presentación |
-| `##.` / `###` / `##!` | convertir a Float / redondear a Int / truncar a Int | cruce de tipo |
-| `##"` / `##'` | marcadores String / Char | tipo, solo en typespec de entrada |
+| `##.` / `###` / `##!` / `##'` | convertir a Float / redondear a Int / truncar a Int / a Char | cruce de tipo |
+| `##"` | marcador String | tipo, solo en typespec de entrada |
+| `##'` | marcador Char | tipo, typespec de entrada, y la conversión de Int a Char en una expresión |
 
 **El paradigma de símbolos de tipo es icónico.** Los valores que devuelve `#?` son miniaturas
 de la notación propia de cada tipo, razón por la cual no necesitan tabla alguna para
@@ -1128,7 +1129,7 @@ coinciden aquí, que es el caso normal y vale la pena notarlo cuando se cumple.
 | solo en el cuerpo de una función | `<~` |
 | requiere modo raw de un `>>\|` envolvente | `<<\|`, `<<\|?` |
 | requiere una TTY; falla con salida redirigida | `>>\|` |
-| solo en posición de typespec de entrada | `##"`, `##'` |
+| solo en posición de typespec de entrada | `##"` |
 | solo en posición de sentencia | `<<`, `<<\|`, `<<\|?`, `><` |
 | solo en el nivel superior de una rama de coincidencia | `\|\|` como patrón-o — los elementos de lista siguen siendo patrones primarios, así que `[1, 2]` nunca es ambiguo con dos alternativas |
 | paréntesis obligatorios para operadores sufijos dentro de `>>` | `(arr$#)` |
@@ -1147,7 +1148,7 @@ inventario.
 *Comprobación:* escribir la glosa interlineal (Apéndice A). Si cada segmento tiene una glosa
 existente y la composición produce el significado buscado, el operador es derivable.
 *Ejemplo:* `<<|?` = IN + UNIDAD + IRR no necesita ninguna marca nueva. Tampoco la necesitan la
-entrada tipada, `||` en patrones, ni `##!` sobre `Char`.
+entrada tipada, `||` en patrones, `##!` sobre `Char`, ni `##'` como la conversión de vuelta.
 
 **2 — Un significado abstracto por marca base.**
 Un nuevo uso de una marca existente debe ajustarse al contrato de esa marca (Parte III).
@@ -1242,8 +1243,9 @@ gasta actualmente; lo que no aparece está sin gastar.
 | `#.N` / `#!N` | redondear / truncar N decimales |
 | `#,` / `#^` | formato de coma / científico |
 | `#d₀d₉#` | modo numérico |
-| `##.` / `###` / `##!` | conversiones |
-| `##"` / `##'` | marcadores String / Char — solo en posición de typespec de entrada |
+| `##.` / `###` / `##!` / `##'` | conversiones |
+| `##"` | marcador String — solo en posición de typespec de entrada |
+| `##'` | marcador Char — typespec de entrada, y la conversión de Int a Char |
 | `##]` `##)` `##()` `##->` `##?` `##_` | símbolos de tipo, solo resultados de `#?` |
 | `##<Ident>` | tipo de error |
 
@@ -1322,6 +1324,7 @@ vez en cinco versiones.
 | **v0.0.7** | Ninguna marca nueva. Entrada tipada por composición — `<< ##.(5,2)`, `<< ###(4)`, `<< ##"(20)`, `<< ##'` — que ocupó por primera vez `##"` y `##'`. Se estableció la biblioteca estándar como módulos y no como símbolos, según la rúbrica símbolo-frente-a-módulo. |
 | **v0.0.8** | Ninguna marca nueva. `\|\|` se extendió a las ramas de coincidencia como patrón-o, reconocido solo en el nivel superior de una rama. `##!` se extendió a `Char` → punto de código (`##!'A'` → `65`), la única ruta directa Char→Int. Se añadió `std/term` como módulo, deliberadamente y no como símbolos. Se añadió el empaquetado `.zyp` sin ninguna superficie de lenguaje. |
 | **v0.0.9** | Ninguna marca nueva. `->` acepta una lista de parámetros vacía: `() -> cuerpo` es un thunk (§9.6) — un cambio a qué puede llenar la ranura antes de la flecha, no a la flecha. Dos cambios de aplicación sin ninguna superficie: `@!`/`@>` y los saltos etiquetados pasaron a ser errores semánticos (§16.1), y el motor del navegador empezó a verificar el número de argumentos. |
+| **v0.0.10** | Ninguna marca nueva. `##'` gana en una expresión la lectura que `###` y `##.` ya tenían: convierte un punto de código Int en su `Char` (`##'65` → `'A'`), el camino de vuelta de `##!` sobre un `Char`. La marca ya significaba Char; lo nuevo es que ahora también es un cruce de tipo, como la familia de conversiones de la que toma su nombre. |
 
 ---
 

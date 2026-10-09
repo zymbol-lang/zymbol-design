@@ -318,7 +318,7 @@ Semi-transparent forms, with the surplus stated:
 #### 4.1 Prefix (proclitic to the operand)
 
 `>>` `>>!` `>>?` `>>~` `>>|` `<<` `<<|` `<<|?` `<#` `#>` `<~` `?` `_?` `??` `@` `!?` `##.`
-`###` `##!` `#|` `#.N` `#!N` `#,` `#^` `><` `\` `!`
+`###` `##!` `##'` `#|` `#.N` `#!N` `#,` `#^` `><` `\` `!`
 
 #### 4.2 Postfix (enclitic to the operand)
 
@@ -601,8 +601,9 @@ the meta level to the type level proper.
 | `#.N\|x\|` / `#!N\|x\|` | round / truncate N decimals | value → display |
 | `#,\|x\|` / `#^\|x\|` | comma / scientific format | value → display |
 | `#d₀d₉#` | numeral-mode switch | display script |
-| `##.` / `###` / `##!` | cast to Float / Int-round / Int-truncate | type crossing |
-| `##"` / `##'` | String / Char markers | type, input typespec only |
+| `##.` / `###` / `##!` / `##'` | cast to Float / Int-round / Int-truncate / Char | type crossing |
+| `##"` | String marker | type, input typespec only |
+| `##'` | Char marker | type, input typespec, and the Int → Char cast in an expression |
 
 **The type-symbol paradigm is iconic.** The values returned by `#?` are miniatures of each
 type's own notation, which is why they need no table to learn:
@@ -1147,7 +1148,7 @@ is the normal case and worth noticing when it holds.
 | function body only | `<~` |
 | requires raw mode from an enclosing `>>\|` | `<<\|`, `<<\|?` |
 | requires a TTY; errors on redirected output | `>>\|` |
-| input typespec position only | `##"`, `##'` |
+| input typespec position only | `##"` |
 | statement position only | `<<`, `<<\|`, `<<\|?`, `><` |
 | top level of a match arm only | `\|\|` as an or-pattern — list elements stay primary patterns, so `[1, 2]` is never ambiguous with two alternatives |
 | parenthesise postfix operators inside `>>` | `(arr$#)` |
@@ -1165,7 +1166,7 @@ A new operator must be explainable as a composition of marks already in the inve
 *Check:* write the interlinear gloss (Appendix A). If every segment has an existing gloss and
 the composition yields the intended meaning, the operator is derivable.
 *Example:* `<<|?` = IN + UNIT + IRR needs no new mark. Neither do typed input, `||` in
-patterns, or `##!` on `Char`.
+patterns, `##!` on `Char`, or `##'` as the cast back.
 
 **2 — One abstract meaning per base mark.**
 A new use of an existing mark must fit that mark's contract (Part III).
@@ -1256,8 +1257,9 @@ is listed here; anything absent is unspent.
 | `#.N` / `#!N` | round / truncate N decimals |
 | `#,` / `#^` | comma / scientific format |
 | `#d₀d₉#` | numeral mode |
-| `##.` / `###` / `##!` | casts |
-| `##"` / `##'` | String / Char markers — input typespec position only |
+| `##.` / `###` / `##!` / `##'` | casts |
+| `##"` | String marker — input typespec position only |
+| `##'` | Char marker — input typespec, and the Int → Char cast |
 | `##]` `##[` `##)` `##(` `##()` `##->` `##?` | type symbols, `#?` results only |
 | `##_` | type symbol, Unit **literal**, and the any-kind mark in `:! ##_` |
 | `##<Ident>` | error kind |
@@ -1350,6 +1352,7 @@ recombination, and a genuinely new mark has happened once in five versions.
 | **v0.0.7** | No new mark. Typed input by composition — `<< ##.(5,2)`, `<< ###(4)`, `<< ##"(20)`, `<< ##'` — which newly occupied `##"` and `##'`. Standard library established as modules rather than symbols, per the symbol-vs-module rubric. |
 | **v0.0.8** | No new mark. `\|\|` extended to match arms as an or-pattern, recognised only at the top level of an arm. `##!` extended to `Char` → code point (`##!'A'` → `65`), the only direct Char→Int route. `std/term` added as a module, deliberately not as symbols. `.zyp` packaging added with no language surface at all. |
 | **v0.0.9** | No new mark. `->` accepts an empty parameter list: `() -> body` is a thunk (§9.6) — a change to what may fill the slot before the arrow, not to the arrow. Two enforcement changes with no surface at all: `@!`/`@>` and labelled jumps became semantic errors (§16.1), and the browser engine started checking argument counts. |
+| **v0.0.10** | No new mark. `##'` gains the reading `###` and `##.` already had in an expression: it casts an Int code point to its `Char` (`##'65` → `'A'`), the way back from `##!` on a `Char`. The mark already meant Char; what is new is that it is now a type crossing too, as the cast family it was named after. |
 
 ---
 
