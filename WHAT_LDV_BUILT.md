@@ -11,7 +11,9 @@
 > **index tables and resolution rows**, not every finding in full: a claim below
 > is as good as the row it came from, and a row that misdescribed its own fix
 > would be reproduced here. All nine logs are indexed by `LDV.md` § 5 — GoL's
-> since 2026-09-29 — which remains the authority on where each lives.
+> since 2026-09-29 — which remains the authority on where each lives. ZyBF's row
+> was added on **2026-10-09**, from its own log, when it was declared a mini LDV
+> of v0.0.10.
 
 ---
 
@@ -30,6 +32,7 @@ Not bugs it found — features and rules that did not exist before it.
 | **ZyBank** | v0.0.9 | `ERROR-ZYB-002`, from which came the function-capture rule — and therefore `MEM-2` |
 | **GoL** | v0.0.9 | the error a program can build and read: **`##Kind("message")`** constructs the soft error the standard modules return, and **`##Kind(m) =>`** reads its message back — the first pattern in the language that creates a name. And what an application needs to test itself from inside the language: a failed command or subscript is an **`##IO` error carrying its exit status**, a subscript takes **its own arguments** (`</ app.zy -L es --list />`), and **`zymbol run --keys`** runs a full-screen program on a virtual screen from a script of keys. On the way: the browser engine's shell stand-ins, `#?` counting code points, a third digit-script trap, every self-asserting suite reporting its result as an exit code, and ZyAudit's suites auditing a real file in the gate for the first time |
 | **Hov veS** | v0.0.5 | multi-module orchestration and 3-language i18n at application level |
+| **ZyBF** | v0.0.10 | **`##'expr`**, the Int → Char cast — the way back from `##!` on a `Char`, with the form of its siblings (`##Range` for a code with no character, `##Type` for anything that is not an Int); the base literal documented as the `Char` it always was; and an error that says when a name was read into the expression before it |
 
 `$*` reached the lexer, the parser, the tree-walker, the VM, the compiler, the
 formatter **and** the semantic analyser. A gap log entry from a snake game is

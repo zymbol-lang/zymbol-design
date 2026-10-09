@@ -29,7 +29,7 @@ The premises Zymbol's implementations must meet, and nothing else.
   ```
 
 - **[`WHAT_LDV_BUILT.md`](WHAT_LDV_BUILT.md)** — the evidence, read back out of
-  the nine applications' findings logs: what each one put into the language,
+  the applications' findings logs: what each one put into the language,
   what was refused and under which rule, and the four language gaps still open.
   It is also where the chain above is shown to have been running before anyone
   wrote it down — `COL-7` traces back to a tensor library that could not express
