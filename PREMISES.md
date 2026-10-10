@@ -176,11 +176,42 @@ call is the call: a reader never opens the function to find out what it changes.
 unmarked call site and an unmarked signature with a marked call site are both
 static errors, each naming the other half.
 
+**Original** (what `<~` hands over, 2026-10-10) — «la idea es que siempre que se
+pueda se reutilice la variable original al pasar información a una función con
+<~ la idea no es que cree copias sino que ocupé está en su fuente original, para
+darle accesos quizá sería verlo como una memoria global restringida aunque no es
+la idea en espíritu, si la es en concepto».
+
+**Normative** (what `<~` hands over) — While the call lasts, an output parameter
+*is* the caller's variable, lent to the function — not a copy of it, copied back.
+Three things follow, each decided by the author on 2026-10-10:
+
+1. what the function wrote before it failed is written — there is no copy to go
+   back to;
+2. one variable cannot be two output arguments of the same call, and such a call
+   is refused before the program runs. Once as output and once by value is an
+   ordinary call: the by-value argument holds what the variable held;
+3. module state passed as `<~` to a function of its own module is the exception,
+   because every function of that module can see the original while the call
+   lasts (MEM-4): it is copied, written back on return, and the copy is dropped
+   if the call fails.
+
+**Measured** (2026-10-10, all three engines) — **holds.** Until that day `<~` was
+copied in and written back in the three: a function that wrote one element
+through it cost the size of the collection on every call, a failure left the
+caller's variable untouched, and `h(e<~, e<~)` kept only what the second
+parameter wrote, in silence.
+
 **Held by** — `isolation/output-parameter-marked-both-ends`,
 `isolation/working-copy-stays-inside`,
 `isolation/output-parameter-unmarked-at-call`,
 `isolation/output-mark-without-an-output-parameter`,
-`isolation/output-argument-must-be-a-variable`.
+`isolation/output-argument-must-be-a-variable`,
+`runtime-functions-hof/output-parameter-after-a-failed-call`,
+`runtime-functions-hof/output-parameter-same-variable-twice`,
+`runtime-functions-hof/output-parameter-also-passed-by-value`,
+`runtime-modules-scripts/module-state-read-while-passed-as-output`,
+`runtime-modules-scripts/module-state-passed-as-output-to-a-call-that-fails`.
 
 A `Held by` names cells as globs over `axis/cell`; `zyddt premises` requires
 each one to match at least one cell that declares this same id back.
