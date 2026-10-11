@@ -15,6 +15,16 @@
 > *directly*, and a direct call was the one shape that worked. See §7 and the
 > findings table.
 >
+> **ZYTW-010 (v0.0.10)** retired the mechanism MM-2 and MM-12 describe. The
+> tree-walker no longer injects copies of a module's variables into a frame and
+> writes the changed ones back: the module's table is the frame's outermost
+> scope, moved out of the store while the frame runs and put back before any
+> call. The sections below that say *inject* and *write-back* describe the
+> tree-walker of v0.0.8–v0.0.9; what they require of a program — state that
+> persists across calls and is private to the module — is unchanged, and is
+> what the register VM and the browser engine always did with one slot per
+> variable. See `ZyDDT/HALLAZGOS/zytw.md`, ZYTW-010.
+>
 > Design sources: `GUIDE.md` §4 (Variables and Constants), §9 (Functions), §10/10b
 > (Lambdas, Capture Semantics), §17 (Modules); `REFERENCE.md` §20 (Known Limitations).
 > Implementation source: `crates/zymbol-interpreter` (tree-walker). Every claim below was
