@@ -1,0 +1,4 @@
+// The warning does not stop the program; the consequence arrives later.
+x = 1
+x = "dos"
+>> x + 1 ¶

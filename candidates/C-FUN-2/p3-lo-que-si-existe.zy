@@ -1,0 +1,5 @@
+// What the language offers instead: write the lambda.
+doble(x) { <~ x * 2 }
+mas1(x) { <~ x + 1 }
+h = (x -> doble(mas1(x)))
+>> h(3) ¶

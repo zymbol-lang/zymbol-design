@@ -1,0 +1,3 @@
+// Is there a named-argument form?
+f(a, b) { <~ a + b }
+>> f(b: 2, a: 1) ¶
