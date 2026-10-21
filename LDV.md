@@ -71,10 +71,10 @@ called an LDV project un-rerunnable, said it would be superseded, and said nothi
 one *and nothing should*. None of that survived contact with the workspace. Once built, an LDV
 application becomes part of the verification layer it was defined against:
 
-- `zyquality/project/apps.toml` registers nine of the ten, and `zyquality/suites.toml`
+- `zyquality/project/apps.toml` registers nine of the eleven, and `zyquality/suites.toml`
   declares the `project` suite with **`gate = true`**. It runs ~60 goldens through both
   engines, and a red there fails `zyq suite`. Only ZethyCLI is absent, because it never grew a
-  suite of its own. GoL and ZyBF are the ones whose suites also agree under the browser engine,
+  suite of its own, and ZyEdit, which has no editor code yet. GoL and ZyBF are the ones whose suites also agree under the browser engine,
   so they are the applications that can be graded on all three.
 - **`ZyFmtCheck`'s default body is the applications**, not the corpus: `./bin/zyfmtcheck` with
   no arguments formats them in a copy, compares code and comments, and re-runs their suites
@@ -271,8 +271,8 @@ cooperating modules; there was nowhere else for it to live, so it hit all three.
 
 ### 5.1 The index
 
-Ten published projects, ten logs, ~6,600 lines of recorded findings. This table is the only
-index of them that exists.
+Eleven published projects, eleven logs, ~8,100 lines of recorded findings (counted 2026-10-21).
+This table is the only index of them that exists.
 
 | Project | Version | Log | ID scheme |
 |---------|---------|-----|-----------|
@@ -286,8 +286,9 @@ index of them that exists.
 | [ZyBank](https://github.com/zymbol-lang/ZyBank) | v0.0.9 | `HALLAZGOS.md` | `BUG-ZYB-NNN` / `GAP-ZYB-NNN` / `ERROR-ZYB-NNN` / `IDEA-ZYB-NNN` — the canonical form entire |
 | [GoL (Ζωή)](https://github.com/zymbol-lang/ZyGoL) | v0.0.9 | `HALLAZGOS.md` | `BUG-GOL-NNN` / `GAP-GOL-NNN` / `IDEA-GOL-NNN` — one sequence across the four types |
 | [ZyBF](https://github.com/zymbol-lang/ZyBF) | v0.0.10 | `HALLAZGOS.md` | `GAP-BF-NNN` / `ERROR-BF-NNN` / `IDEA-BF-NNN` — one sequence; a **mini LDV** |
+| [ZyEdit](https://github.com/zymbol-lang/ZyEdit) | v0.0.11 | `HALLAZGOS.md` | `DIS-ZYE-NNN`, then `BUG` / `GAP` / `ERROR` / `IDEA-ZYE-NNN` — one sequence; opened **before** the application, with design findings (§ 5.2) |
 
-The substance is consistent across all ten: a reading guide, findings with a reproduction and
+The substance is consistent across the ten with findings already closed: a reading guide, findings with a reproduction and
 a status, and a resolution history. Several logs cross-reference each other — Zofía opens with
 the lessons carried over from Serpiente, Serpiente's `HLZ-SRP-001` is discussed next to 囲碁's
 `HLZ-008` — which is the method working: a finding in one domain is worth stating in the
@@ -347,6 +348,22 @@ cannot test a Zymbol program without leaving the language. The domain that moved
 it was *the application testing itself*, which no earlier project had been asked to do in
 Zymbol. Its identifiers are scoped from the first entry and numbered in one sequence across the
 four types, so `GOL-013` names one finding whatever its type.
+
+**ZyEdit is the third to start in the whole form, and the first to start before its
+application.** It was opened on 2026-10-21 with no editor code, and its log adds a fifth type at
+the author's request: **`DIS`, a design finding**. A design finding is made by probing the
+language with a minimal program while the application is being designed, and not by writing
+the application as if the language supported it, which is the RED step of § 4. So it is not
+LDV in the strict sense, and the type says so, so that nobody reads one as something the
+application found by being written. In everything else it is treated like the other four:
+- it carries a program that reproduces it;
+- it closes with a language change or a reasoned rejection;
+- it is not closed until a minimal case holds it in `zyquality/` or ZyDDT.
+
+The evidence lives beside the log, in `hypotheses/`: one directory per question, a check that
+reports `HOLDS` or `FIXED` for each finding, and the dated answer. The directory is kept after
+the fix, because the same check is what confirms it. Its identifiers are scoped (`DIS-ZYE-001`)
+and numbered in one sequence across the five types, as GoL's are.
 
 ---
 
