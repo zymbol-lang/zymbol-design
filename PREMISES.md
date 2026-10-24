@@ -655,6 +655,9 @@ an **error**. That is the whole point of having it: a programmer who writes `\`
 is making a statement about lifetime, and a statement nobody can be wrong about
 is not a statement.
 
+A destroyed name keeps its place in its strong environment: assigning it again,
+from any block of that environment, gives it back there.
+
 **Measured** (2026-09-13) — the automatic half holds, and `zyquality/cost/`
 measures it: two aggregates used one after the other peak at the cost of one
 (0.51 in the tree-walker, 0.55 in the VM), while the same two alive at once peak
