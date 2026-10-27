@@ -71,11 +71,13 @@ called an LDV project un-rerunnable, said it would be superseded, and said nothi
 one *and nothing should*. None of that survived contact with the workspace. Once built, an LDV
 application becomes part of the verification layer it was defined against:
 
-- `zyquality/project/apps.toml` registers nine of the eleven, and `zyquality/suites.toml`
+- `zyquality/project/apps.toml` registers ten of the eleven, and `zyquality/suites.toml`
   declares the `project` suite with **`gate = true`**. It runs ~60 goldens through both
   engines, and a red there fails `zyq suite`. Only ZethyCLI is absent, because it never grew a
-  suite of its own, and ZyEdit, which has no editor code yet. GoL and ZyBF are the ones whose suites also agree under the browser engine,
-  so they are the applications that can be graded on all three.
+  suite of its own. ZyEdit (2026-10-27) is judged there on its two pure modules; its screen is
+  held by its own `tests/run.sh`, through `--keys` and a pty. GoL and ZyBF are the ones whose
+  suites also agree under the browser engine, so they are the applications that can be graded
+  on all three.
 - **`ZyFmtCheck`'s default body is the applications**, not the corpus: `./bin/zyfmtcheck` with
   no arguments formats them in a copy, compares code and comments, and re-runs their suites
   from that copy. Its README says why the corpus could not do this job — *"they are the richest
