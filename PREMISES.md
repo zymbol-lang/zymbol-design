@@ -88,7 +88,7 @@ them were module functions reading their own module's state, which is MEM-4 and
 not a crossing at all.
 
 **History** — it held until **2026-08-24**. `GUIDE.md` § 10b documented the
-isolation as deliberate; commit `fbccc8e` retired both, to resolve ZyBank's
+isolation as deliberate; commit `5f74974` retired both, to resolve ZyBank's
 `ERROR-ZYB-002`, which had found that the same body behaved differently
 depending on how it was reached (a direct call ran isolated; the same function
 taken as a value captured). Of the two ways to make that coherent — isolate both
