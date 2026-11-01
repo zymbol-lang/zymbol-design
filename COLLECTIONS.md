@@ -348,6 +348,12 @@ u = #(nombre: "Ana", edad: 30)
 Keys are unique, insertion order is preserved (as in Python's `dict` since 3.7
 and in a JS object), and values mix types freely — the opposite of the array.
 
+A literal that writes a key twice — `#(a: 1, a: 2)` — is refused before the
+program runs, in the three engines: Python and JavaScript keep the last one in
+silence, and a key written twice is a typing mistake far more often than an
+intention (GLB-131, decided by the author 2026-10-16). Until then the three
+engines kept both, against the sentence above.
+
 ### Reading, including a computed key
 
 ```zymbol

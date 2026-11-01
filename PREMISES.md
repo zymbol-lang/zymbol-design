@@ -88,7 +88,7 @@ them were module functions reading their own module's state, which is MEM-4 and
 not a crossing at all.
 
 **History** — it held until **2026-08-24**. `GUIDE.md` § 10b documented the
-isolation as deliberate; commit `fbccc8e` retired both, to resolve ZyBank's
+isolation as deliberate; commit `5f74974` retired both, to resolve ZyBank's
 `ERROR-ZYB-002`, which had found that the same body behaved differently
 depending on how it was reached (a direct call ran isolated; the same function
 taken as a value captured). Of the two ways to make that coherent — isolate both
@@ -654,6 +654,9 @@ conservative direction is always the silent one.
 an **error**. That is the whole point of having it: a programmer who writes `\`
 is making a statement about lifetime, and a statement nobody can be wrong about
 is not a statement.
+
+A destroyed name keeps its place in its strong environment: assigning it again,
+from any block of that environment, gives it back there.
 
 **Measured** (2026-09-13) — the automatic half holds, and `zyquality/cost/`
 measures it: two aggregates used one after the other peak at the cost of one
