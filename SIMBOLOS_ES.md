@@ -699,6 +699,13 @@ desestructuración. Shift no se informa sobre texto, porque el carácter ya lo m
 alternativas eran un `t::mods()` con estado en `std/term`, y arreglar sólo Ctrl+flecha dejando
 Shift+→ fuera de alcance. Las dos se descartaron (`interpreter/ROADMAP_V0012_ES.md`).
 
+**`⤢` — un cambio de tamaño de la ventana, leído como tecla** (D-17, 2026-11-23). Un programa
+bloqueado en `<<|` despierta con `'⤢'` (U+2922, el icono habitual de redimensionar), con
+`m = 0`, y vuelve a preguntar `>>?`. No pide sintaxis nueva por la misma razón que los glifos de
+D-13: `<<|` ya significa «lo siguiente que dice el terminal». Las alternativas eran entregarlo
+sólo a un programa que hubiera preguntado `>>?` antes, una regla que depende de un acto
+anterior, y seguir sondeando.
+
 #### 8.6 `><` — la frontera del proceso
 
 `><` captura la línea de comandos en un arreglo de cadenas. Es icónico (flechas que convergen =

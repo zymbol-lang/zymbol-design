@@ -707,6 +707,12 @@ Shift is not reported on text, because the character already shows it (D-15). Th
 alternatives were a stateful `t::mods()` in `std/term`, and fixing Ctrl+arrow alone while
 Shift+→ stayed out of reach. Both were turned down (`interpreter/ROADMAP_V0012_ES.md`).
 
+**`⤢` — a change of the window's size, read as a key** (D-17, 2026-11-23). A program blocked
+in `<<|` is woken by `'⤢'` (U+2922, the usual resize icon), with `m = 0`, and asks `>>?` again.
+It takes no new syntax for the same reason the glyphs of D-13 take none: `<<|` already means
+"what the terminal says next". The alternatives were delivering it only to a program that had
+asked `>>?` before, a rule that depends on an earlier act, and keeping the polling.
+
 #### 8.6 `><` — the process boundary
 
 `><` captures the command line into a string array. It is iconic (converging arrows = intake
