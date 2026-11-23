@@ -636,10 +636,20 @@ después de `>>` selecciona *qué aspecto* de la superficie se ve afectado.
 | `>>!` | limpiar la pantalla | OUT + FRZ — forzar la superficie a un estado conocido |
 | `>>?` | consultar el tamaño de la terminal (`(H, W) = >>?`) | OUT + IRR — preguntarle algo a la superficie |
 | `>>~ (…) > elementos` | salida posicionada / con estilo | OUT + MOD — modificar posición y estilo |
+| `>>~ (fila, col)` | el cursor del terminal, mostrado ahí; `(0, 0)` lo oculta | OUT + MOD — modificar la posición, sin carga |
 | `>>\| { }` | bloque TUI: pantalla alterna + modo raw | OUT + GATE — una región controlada |
 
 El `>` interno de `>>~ (5,10) > "texto"` es de nuevo la marca de dirección, introduciendo la
 carga después de la tupla de estilo.
+
+**`>>~ (fila, col)` — el cursor, sin marca nueva** (D-16, 2026-11-23). Sin el `>` no hay carga,
+y lo que `>>~` modifica queda solo: la posición. Así que el cursor del terminal se muestra ahí, y
+ahí sigue mientras el programa dibuja en otro sitio, hasta que otro `>>~ (fila, col)` lo mueve.
+`(0, 0)` lo oculta: filas y columnas cuentan desde 1, y una casilla de color ya lee el `0` como
+«lo del terminal», que dentro de `>>|` es oculto. Sólo se acepta una posición, porque un estilo
+no tiene a qué aplicarse. Las alternativas eran `t::cursor(f, c)` en `std/term`, que habría
+sacado a un miembro de la familia del canal de pantalla, y dejarlo como estaba, con un editor
+pintando su propio caret (`interpreter/ROADMAP_V0012_ES.md`).
 
 #### 8.5 `<<` — IN, el flujo de entrada
 

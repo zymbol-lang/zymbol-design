@@ -645,10 +645,20 @@ after `>>` selects *what aspect* of the surface is acted on.
 | `>>!` | clear the screen | OUT + FRC — force the surface to a known state |
 | `>>?` | query terminal size (`(H, W) = >>?`) | OUT + IRR — ask the surface a question |
 | `>>~ (…) > items` | positioned / styled output | OUT + MOD — modify position and style |
+| `>>~ (row, col)` | the terminal's cursor, shown there; `(0, 0)` hides it | OUT + MOD — modify the position, with no payload |
 | `>>\| { }` | TUI block: alternate screen + raw mode | OUT + GATE — a controlled region |
 
 The internal `>` in `>>~ (5,10) > "text"` is the direction mark again, introducing the
 payload after the style tuple.
+
+**`>>~ (row, col)` — the cursor, with no new mark** (D-16, 2026-11-23). Without the `>` there
+is no payload, and what `>>~` modifies is left alone: the position. So the terminal's cursor
+is shown there, and stays there while the program draws elsewhere, until another
+`>>~ (row, col)` moves it. `(0, 0)` hides it: rows and columns count from 1, and a colour
+slot already reads `0` as "the terminal's own", which inside `>>|` is hidden. Only a place is
+accepted, because a style has nothing to apply to. The alternatives were `t::cursor(r, c)` in
+`std/term`, which would have taken one member out of the screen channel's family, and
+leaving it as it was, with an editor drawing its own caret (`interpreter/ROADMAP_V0012_ES.md`).
 
 #### 8.5 `<<` — IN, the inward stream
 
