@@ -679,6 +679,16 @@ La forma irrealis igual devuelve un `Char`; lo que no puede es prometer uno *sig
 que responde con el carácter nulo.[^sentinel] El irrealis estrecha la garantía, no el tipo — que
 es lo que mantiene a `?` como sufijo y no como un operador distinto.
 
+**`<<| k, m` — los modificadores, sin marca nueva** (D-14, 2026-11-22). Las teclas que no son
+texto llegan como glifos, como siempre llegaron las flechas: `⇱ ⇲ ⇞ ⇟ ⌦ ⇤` y `①`–`⑫` (D-13).
+Lo que un glifo no puede llevar es el Shift, el Alt o el Ctrl pulsados con él. Un segundo
+destino tras una coma los recibe como un `Int`: Shift 1, Alt 2, Ctrl 4. La coma es el separador
+de listas que el lenguaje ya escribe en todas partes, y `<<|` conserva su único significado,
+«una tecla». La forma dice cuántos valores entran por cuántos nombres tiene, como una
+desestructuración. Shift no se informa sobre texto, porque el carácter ya lo muestra (D-15). Las
+alternativas eran un `t::mods()` con estado en `std/term`, y arreglar sólo Ctrl+flecha dejando
+Shift+→ fuera de alcance. Las dos se descartaron (`interpreter/ROADMAP_V0012_ES.md`).
+
 #### 8.6 `><` — la frontera del proceso
 
 `><` captura la línea de comandos en un arreglo de cadenas. Es icónico (flechas que convergen =
@@ -1468,7 +1478,8 @@ nunca los excluye, así que en medio del token no lo están.
 
 [^sentinel]: `'\0'`, el carácter nulo, de `crates/zymbol-interpreter/src/io.rs`. Un programa
 distingue "sin tecla" de una pulsación real comparando contra él:
-`? k <> '\0' { … }`.
+`? k <> '\0' { … }`. Una tecla que el lenguaje no nombra (Insert, una tecla multimedia)
+también llega como `'\0'`; desde D-13 las que tienen nombre ya no.
 
 [^atsleep]: Ningún motor ha exigido nunca un bucle alrededor de `@~`, en ninguna versión. La
 restricción se afirmaba por herencia del prefijo `@` en vez de derivarse de lo que hace la

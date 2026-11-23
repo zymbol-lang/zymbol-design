@@ -687,6 +687,16 @@ The irrealis form still yields a `Char`; what it cannot do is promise a *meaning
 it answers with the null character.[^sentinel] Irrealis narrows the guarantee, not the
 type — which is what keeps `?` a suffix rather than a different operator.
 
+**`<<| k, m` — the modifiers, with no new mark** (D-14, 2026-11-22). The keys that are not
+text arrive as glyphs, the way the arrows always did: `⇱ ⇲ ⇞ ⇟ ⌦ ⇤` and `①`–`⑫` (D-13).
+What a glyph cannot carry is the Shift, Alt or Ctrl held with it. A second target after a
+comma receives them as an `Int`: Shift 1, Alt 2, Ctrl 4. The comma is the list separator the
+language already writes everywhere, and `<<|` keeps its single meaning, "one key". The
+form says how many values come in by how many names it has, as a destructuring does.
+Shift is not reported on text, because the character already shows it (D-15). The
+alternatives were a stateful `t::mods()` in `std/term`, and fixing Ctrl+arrow alone while
+Shift+→ stayed out of reach. Both were turned down (`interpreter/ROADMAP_V0012_ES.md`).
+
 #### 8.6 `><` — the process boundary
 
 `><` captures the command line into a string array. It is iconic (converging arrows = intake
@@ -1495,7 +1505,8 @@ never excludes them, so medially they are not.
 
 [^sentinel]: `'\0'`, the null character, from `crates/zymbol-interpreter/src/io.rs`. A
 program distinguishes "no key" from a real keypress by comparing against it:
-`? k <> '\0' { … }`.
+`? k <> '\0' { … }`. A key the language does not name (Insert, a media key) also arrives as
+`'\0'`; since D-13 the named ones no longer do.
 
 [^atsleep]: No engine has ever required a loop around `@~`, in any version. The constraint
 was asserted by inheritance from the `@` prefix rather than derived from what the statement
