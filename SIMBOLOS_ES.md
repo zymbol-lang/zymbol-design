@@ -612,9 +612,9 @@ Duplicar a `##` mueve del nivel meta al nivel de tipo propiamente dicho.
 | `#.N\|x\|` / `#!N\|x\|` | redondear / truncar N decimales | valor → presentación |
 | `#,\|x\|` / `#^\|x\|` | formato de coma / científico | valor → presentación |
 | `#d₀d₉#` | cambio de modo numérico | script de presentación |
-| `##.` / `###` / `##!` / `##'` | convertir a Float / redondear a Int / truncar a Int / a Char | cruce de tipo |
+| `##.` / `###` / `##!` | convertir a Float / redondear a Int / truncar a Int | cruce de tipo |
 | `##"` | marcador String | tipo, solo en typespec de entrada |
-| `##'` | marcador Char | tipo, typespec de entrada, y la conversión de Int a Char en una expresión |
+| `##'` | marcador Char | tipo y typespec de entrada (la conversión de Int a Char que también fue en una expresión, v0.0.10–v0.0.11, es `0d\|n\|` desde la v0.0.12) |
 
 **El paradigma de símbolos de tipo es icónico.** Los valores que devuelve `#?` son miniaturas
 de la notación propia de cada tipo, razón por la cual no necesitan tabla alguna para
@@ -1282,9 +1282,9 @@ gasta actualmente; lo que no aparece está sin gastar.
 | `#.N` / `#!N` | redondear / truncar N decimales |
 | `#,` / `#^` | formato de coma / científico |
 | `#d₀d₉#` | modo numérico |
-| `##.` / `###` / `##!` / `##'` | conversiones |
+| `##.` / `###` / `##!` | conversiones |
 | `##"` | marcador String — solo en posición de typespec de entrada |
-| `##'` | marcador Char — typespec de entrada, y la conversión de Int a Char |
+| `##'` | marcador Char — typespec de entrada |
 | `##]` `##)` `##()` `##->` `##?` `##_` | símbolos de tipo, solo resultados de `#?` |
 | `##<Ident>` | tipo de error |
 
@@ -1364,6 +1364,7 @@ vez en cinco versiones.
 | **v0.0.8** | Ninguna marca nueva. `\|\|` se extendió a las ramas de coincidencia como patrón-o, reconocido solo en el nivel superior de una rama. `##!` se extendió a `Char` → punto de código (`##!'A'` → `65`), la única ruta directa Char→Int. Se añadió `std/term` como módulo, deliberadamente y no como símbolos. Se añadió el empaquetado `.zyp` sin ninguna superficie de lenguaje. |
 | **v0.0.9** | Ninguna marca nueva. `->` acepta una lista de parámetros vacía: `() -> cuerpo` es un thunk (§9.6) — un cambio a qué puede llenar la ranura antes de la flecha, no a la flecha. Dos cambios de aplicación sin ninguna superficie: `@!`/`@>` y los saltos etiquetados pasaron a ser errores semánticos (§16.1), y el motor del navegador empezó a verificar el número de argumentos. |
 | **v0.0.10** | Ninguna marca nueva. `##'` gana en una expresión la lectura que `###` y `##.` ya tenían: convierte un punto de código Int en su `Char` (`##'65` → `'A'`), el camino de vuelta de `##!` sobre un `Char`. La marca ya significaba Char; lo nuevo es que ahora también es un cruce de tipo, como la familia de conversiones de la que toma su nombre. |
+| **v0.0.12** | Ninguna marca nueva: se quita una lectura a dos. `##'` pierde su lectura en una expresión y `##!` su operando `Char` (D-24): un carácter y su código pasan sólo por `0d\|…\|`, en los dos sentidos (`0d\|65\|` → `'A'`, `0d\|'A'\|` → `65`), una lectura que el prefijo de base ya tenía para un texto. `0x\|…\|`, `0o\|…\|` y `0b\|…\|` escriben un código como texto nunca más estrecho que un byte (D-23). |
 
 ---
 

@@ -615,9 +615,9 @@ the meta level to the type level proper.
 | `#.N\|x\|` / `#!N\|x\|` | round / truncate N decimals | value → display |
 | `#,\|x\|` / `#^\|x\|` | comma / scientific format | value → display |
 | `#d₀d₉#` | numeral-mode switch | display script |
-| `##.` / `###` / `##!` / `##'` | cast to Float / Int-round / Int-truncate / Char | type crossing |
+| `##.` / `###` / `##!` | cast to Float / Int-round / Int-truncate | type crossing |
 | `##"` | String marker | type, input typespec only |
-| `##'` | Char marker | type, input typespec, and the Int → Char cast in an expression |
+| `##'` | Char marker | type and input typespec (the Int → Char cast it also was in an expression, v0.0.10–v0.0.11, is `0d\|n\|` since v0.0.12) |
 
 **The type-symbol paradigm is iconic.** The values returned by `#?` are miniatures of each
 type's own notation, which is why they need no table to learn:
@@ -1297,9 +1297,9 @@ is listed here; anything absent is unspent.
 | `#.N` / `#!N` | round / truncate N decimals |
 | `#,` / `#^` | comma / scientific format |
 | `#d₀d₉#` | numeral mode |
-| `##.` / `###` / `##!` / `##'` | casts |
+| `##.` / `###` / `##!` | casts |
 | `##"` | String marker — input typespec position only |
-| `##'` | Char marker — input typespec, and the Int → Char cast |
+| `##'` | Char marker — input typespec |
 | `##]` `##[` `##)` `##(` `##()` `##->` `##?` | type symbols, `#?` results only |
 | `##_` | type symbol, Unit **literal**, and the any-kind mark in `:! ##_` |
 | `##<Ident>` | error kind |
@@ -1393,6 +1393,7 @@ recombination, and a genuinely new mark has happened once in five versions.
 | **v0.0.8** | No new mark. `\|\|` extended to match arms as an or-pattern, recognised only at the top level of an arm. `##!` extended to `Char` → code point (`##!'A'` → `65`), the only direct Char→Int route. `std/term` added as a module, deliberately not as symbols. `.zyp` packaging added with no language surface at all. |
 | **v0.0.9** | No new mark. `->` accepts an empty parameter list: `() -> body` is a thunk (§9.6) — a change to what may fill the slot before the arrow, not to the arrow. Two enforcement changes with no surface at all: `@!`/`@>` and labelled jumps became semantic errors (§16.1), and the browser engine started checking argument counts. |
 | **v0.0.10** | No new mark. `##'` gains the reading `###` and `##.` already had in an expression: it casts an Int code point to its `Char` (`##'65` → `'A'`), the way back from `##!` on a `Char`. The mark already meant Char; what is new is that it is now a type crossing too, as the cast family it was named after. |
+| **v0.0.12** | No new mark — one reading taken away from two. `##'` loses its expression reading and `##!` its `Char` operand (D-24): a character and its code cross through `0d\|…\|` only, both ways (`0d\|65\|` → `'A'`, `0d\|'A'\|` → `65`), a reading the base prefix already had for a text. `0x\|…\|`, `0o\|…\|` and `0b\|…\|` write a code as text no narrower than a byte (D-23). |
 
 ---
 
