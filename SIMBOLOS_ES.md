@@ -192,6 +192,13 @@ identificador ordinarios, porque la definición negativa no los reclama.[^quotes
 consecuencia del diseño y no un defecto en él: la alternativa es una lista blanca positiva, que
 es justamente lo que la clase abierta existe para evitar.
 
+La frontera decide de qué caracteres está hecho un nombre; qué nombre *es* viene después. Un
+nombre se lee en NFC, la composición canónica de Unicode (D-20, decidido el 2026-11-23): `й`
+escrita como U+0439 y como `и` + U+0306 es un solo nombre, porque Unicode declara que son una
+misma letra y por definición se ven igual. Sólo cuenta la equivalencia canónica: `ﬁ` y `fi` se
+ven distintos y son nombres distintos. Las cadenas son datos y conservan lo escrito, y lo mismo
+una ruta de módulo, que nombra un fichero.
+
 #### 2.4 Cómo puede crecer el inventario
 
 La clase de operadores es cerrada en el sentido de que ampliarla es un acto deliberado con un

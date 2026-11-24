@@ -200,6 +200,14 @@ characters, because the negative definition does not claim them.[^quotes] This i
 consequence of the design rather than a defect in it: the alternative is a positive
 allowlist, which is the thing the open class exists to avoid.
 
+The boundary decides which characters a name is made of; what the name *is*
+comes after. A name is read in NFC, Unicode's canonical composition (D-20,
+decided 2026-11-23): `й` typed as U+0439 and as `и` + U+0306 is one name,
+because Unicode declares them one letter and they look the same by definition.
+Only canonical equivalence counts — `ﬁ` and `fi` look different and are
+different names. Strings are data and keep what was written, and so does a
+module path, which names a file.
+
 #### 2.4 How the inventory may grow
 
 The operator class is closed in the sense that adding to it is a deliberate act with a

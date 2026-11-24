@@ -48,6 +48,11 @@ Everything else is untouchable. In particular:
   `##"`, `##'`, `#|var|`), interpolated strings `"a {b} c"`, `¶` vs `\\`,
   1-tuples `(1,)`, single vs double bracket extraction (`arr[i>a..b]` vs
   `arr[[path]]`), and export-block comma separators.
+- **Names reprint as written.** A name is known by its NFC (D-20), so `й`
+  typed as `и` + U+0306 reaches the AST composed. The formatter puts each name
+  token back the way the source spells it (`gate.rs::restore_spellings`, run
+  after the safety gate has shown the two token streams equal): the two
+  spellings are one name, and the formatter does not rewrite what was written.
 - **Literals reprint as written.** A literal reaches the AST as a *value*, and
   many source forms share one value: `४२`, `0x2A`, `0b101010` and `42` are all
   `Int(42)`; `٣٫٥` and `3.5` are one `Float`; `#१` and `#1` are one `Bool`.
