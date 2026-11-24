@@ -208,6 +208,12 @@ Only canonical equivalence counts — `ﬁ` and `fi` look different and are
 different names. Strings are data and keep what was written, and so does a
 module path, which names a file.
 
+Names that only look alike — the Latin `a` and the Cyrillic `а` — are different
+names, and stay valid. Only an editor says that two names of one file look the
+same, by Unicode's confusable skeleton (UTS #39); the terminal says nothing
+(D-21, decided 2026-11-24, after the rule of 2026-09-25 for characters that look
+like a symbol).
+
 #### 2.4 How the inventory may grow
 
 The operator class is closed in the sense that adding to it is a deliberate act with a

@@ -199,6 +199,11 @@ misma letra y por definición se ven igual. Sólo cuenta la equivalencia canóni
 ven distintos y son nombres distintos. Las cadenas son datos y conservan lo escrito, y lo mismo
 una ruta de módulo, que nombra un fichero.
 
+Los nombres que sólo se parecen —la `a` latina y la `а` cirílica— son nombres distintos y siguen
+siendo válidos. Sólo un editor avisa de que dos nombres de un fichero se ven iguales, por el
+esqueleto de confusión de Unicode (UTS #39); el terminal no dice nada (D-21, decidido el
+2026-11-24, siguiendo la regla del 2026-09-25 para los caracteres que se parecen a un símbolo).
+
 #### 2.4 Cómo puede crecer el inventario
 
 La clase de operadores es cerrada en el sentido de que ampliarla es un acto deliberado con un
