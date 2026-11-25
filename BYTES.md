@@ -1,20 +1,71 @@
 # Bytes
 
 How a Zymbol program holds bytes and changes them — what other languages call
-*manipulating memory*. It is built from three earlier decisions, so there is little
-new here. A byte is a character (D-22). Base literals were already characters.
-The base conversions were given the width of a byte (D-23), the casts between a
-character and its code were removed (D-24), and the bars became three doors, one
-per result (D-25). This document puts
-them in one place, with how each open question was decided.
+*manipulating memory*. A byte is a character whose code fits between `0x00` and
+`0xFF`. So this document builds on [`CHARACTERS.md`](CHARACTERS.md), which says
+what a character is, how it is written in four bases, how it becomes a number
+or a text, and how a text becomes bytes in a file. Read its § 1 first: a
+character, its code and its bytes are three different things.
 
-**Status.** §1–§6 describe the language as it is on 2026-11-25. Every example
-was run in all four engines (zytw, zyvm, zyjs, zyjsvm) and they agree. §7 gives
-the measured cost. §8 lists what was open and how each was decided.
+It gathers decisions taken one at a time: a byte is a character (D-22); the
+base conversions write the width of a byte (D-23); the casts between a
+character and its code were removed (D-24) and the bars became three doors
+(D-25); `Char $* n` builds a buffer (D-27); writing a byte in place is linear
+(D-26); and `std/bits` holds the bits and the words (D-28).
+
+**Status.** §1–§5 describe the language as it is on 2026-11-25. Every example
+was run in all four engines (zytw, zyvm, zyjs, zyjsvm) and they agree. § 6 gives
+the measured cost. § 7 lists what was open and how each was decided.
 
 ---
 
-## 1. There are no addresses
+## 1. A byte is a Char from 0x00 to 0xFF
+
+Zymbol has no byte type. A byte is the character with that number, written as
+any character is written by its code ([`CHARACTERS.md`](CHARACTERS.md) § 2):
+
+| Base | Lowest | Highest | the byte 65 |
+|---|---|---|---|
+| hexadecimal | `0x00` | `0xFF` | `0x41` |
+| decimal | `0d0` | `0d255` | `0d65` |
+| octal | `0o000` | `0o377` | `0o101` |
+| binary | `0b00000000` | `0b11111111` | `0b01000001` |
+
+The byte `0x41` is the character `A` and the byte `0xFF` is the character `ÿ`.
+Written back as text, a byte never takes fewer digits than one byte needs in
+that base, so 256 of them line up in a column: `0x|'A'|` is `"0x41"`,
+`0o|'A'|` is `"0o101"`, `0b|'A'|` is `"0b01000001"` (D-23).
+
+A **buffer** is therefore a `String` whose characters are all from `0x00` to
+`0xFF`. It is the form ZyBF's tape already took (GLB-109). `io::read_bytes(p)`
+reads a file into one, a Char per byte, and `io::write_bytes(p, b)` writes one
+back (D-22).
+
+**What is not a byte.** A character whose code is past `0xFF` — `こ` is
+`0x3053`, `🌕` is `0x1F315` — is a character and not a byte, and writing it as
+one is a `##Range` error:
+
+```zymbol
+<# std/io => io
+io::write_bytes("x.bin", "a🌕")
+>> "no llega" ¶
+```
+
+stops with `io::write_bytes: '🌕' is U+1F315, out of range for a byte: a byte
+is a Char from 0x00 to 0xFF`, and the file is not touched. The **bytes of** `🌕`
+are four, `F0 9F 8C 95`, the ones UTF-8 stores it in; to get them, write the
+text as text and read it back as bytes ([`CHARACTERS.md`](CHARACTERS.md) § 5).
+
+**A byte is a number through the doors.** `#|b[i]|` is the number of the byte
+at `i`, `|n|` is the byte of the number `n`, and `0x|b[i]|` writes it in
+hexadecimal ([`CHARACTERS.md`](CHARACTERS.md) § 3):
+
+```zymbol
+b = "" |72| |105| 0xFF
+>> #|b[1]| " " #|b[2]| " " 0x|b[3]| " " b$# ¶   // → 72 105 0xFF 3
+```
+
+## 2. There are no addresses
 
 Zymbol has values. It has no memory cells: no pointer, no address, no
 `peek`/`poke`, and no two names that reach the same storage. This follows from
@@ -24,84 +75,18 @@ two premises, so it is a rule and not a missing feature:
 - **MEM-8**: memory is released automatically and invisibly, or destroyed by hand.
 
 So a program that "manipulates memory" in Zymbol holds a **byte buffer** as a
-value and changes it with the operations it already uses on text. It is Python's
-`bytearray` without the sharing. Changing that would mean changing a premise,
-and only the author does that (§8, B-6).
+value and changes it with the operations it already uses on text. It is
+Python's `bytearray` without the sharing. The author kept both premises when
+the question came up (§ 7, B-6).
 
-## 2. A byte is a Char from 0x00 to 0xFF
-
-A base literal is a `Char`, not an `Int`. `0x41` is `'A'`. Each base has its own
-spelling of the same byte:
-
-| Base | Lowest | Highest | `'A'` |
-|---|---|---|---|
-| hexadecimal | `0x00` | `0xFF` | `0x41` |
-| decimal | `0d0` (or `0d00`, `0d000`) | `0d255` | `0d65` |
-| octal | `0o000` | `0o377` | `0o101` |
-| binary | `0b00000000` | `0b11111111` | `0b01000001` |
-
-Leading zeros are allowed in every base, and they do not change the value.
-Converting back to text uses the widths in the table (D-23). Hexadecimal, octal
-and binary never use fewer digits than one byte takes, so the 256 bytes line up
-in a column. The decimal is written the way it is read: `0d65`.
-
-A buffer is therefore a `String` whose characters are all between `0x00` and
-`0xFF`. It is the form ZyBF's tape already took (GLB-109). `io::read_bytes` and
-`io::write_bytes` read such a String from a file and write it back (D-22).
-
-## 3. Three doors, one per result
-
-A number has no base: a base is a way of writing it. So the four prefixes give a
-**text** — the value written in that base — and the two other results have doors
-of their own (D-25, v0.0.12): the bare bars give the **character**, and `#|…|`
-gives the **number**. Each door takes a Char, an Int, or a text written in any
-base, with a sign and any of the four prefixes.
-
-```text
-                      ┌─ 0x|v| 0d|v| 0o|v| 0b|v| ─▶  text   "0x41" "0d65" "0o101" "0b01000001"
-   Char 'A'           │
-   Int 65        ─────┼─ |v| ──────────────────────▶  Char   'A'
-   text "0x41"        │
-                      └─ #|v| ─────────────────────▶  Int    65
-```
-
-```zymbol
-caracter = 'A'
-numero = 65
-elemento = 0d|caracter|
->> elemento " " 0d|"0b01000001"| " " 0d|0o101| " " 0x|numero| ¶   // → 0d65 0d65 0d65 0x41
->> |elemento| " " |numero| " " |"0d{numero}"| " " |0d65| ¶         // → A A A A
->> #|caracter| " " #|elemento| " " #|"0x41"| ¶                     // → 65 65 65
-```
-
-| From | To | Write |
-|---|---|---|
-| Char, Int or text in a base | text in a base | `0x\|v\|` `0d\|v\|` `0o\|v\|` `0b\|v\|` — a text with no prefix is read in that base |
-| Int or text in a base | Char | `\|v\|` — a `##Range` error past `0x10FFFF`, on a surrogate, or below 0; a Float is `##Type` |
-| Char or text in a base | Int | `#\|v\|` — a text that does not read is handed back unchanged |
-| digits in a source file | Char | the literal: `0x41` |
-
-**A character is its code.** `#|'7'|` is 55, the code of the character `7`. The
-value of a digit is the text's reading, `#|"{c}"|`, in any of the 69 scripts.
-
-**Removed in v0.0.12** (D-24): `##'n`, the cast from a code to its character
-(GLB-109, v0.0.10), and `##!` on a `Char` (v0.0.8). Two operators did what the
-doors do, they looked nothing like the base forms beside them — `##!letra_A`
-gave `65` where `0x|letra_A|` gave `"0x41"` — and the applications that used
-them left findings behind (ERROR-BF-002, ZyEdit's digit sums, ZyBank's ASCII
-table). Both are refused before a program runs, with a help line that names
-`|n|` and `#|c|`. `##!` keeps truncating a Float. For a day of v0.0.12, `0d|…|`
-was the door to the number (D-24), which made the decimal the one base whose
-result was not text; D-25 undid it.
-
-## 4. A buffer
+## 3. A buffer
 
 Every operation on a buffer is an operation on text.
 
 | What | Write | Note |
 |---|---|---|
 | create | `0x00 $* n`, or `"" 0x00 0x00 0x00 0x00` | a Char repeats as the text of one character (D-27) |
-| length | `b$#` | |
+| length | `b$#` | in bytes, because every character of a buffer is one |
 | read a byte | `b[i]` (a Char), `#\|b[i]\|` (its number) | 1-based |
 | change a byte | `b[i]$~ 0xFF` | the result is discarded, so the edit lands in `b` (COL-1) |
 | a changed copy | `c = b[i]$~ 0x7F` | the result is used, so `b` keeps its value |
@@ -122,7 +107,7 @@ c = b[3]$~ 0x7F
 holds a character that is not a byte. The check is made when the buffer is
 written to a file, by `io::write_bytes`.
 
-## 5. Wider than a byte: `std/bits`
+## 4. Wider than a byte: words, with `std/bits`
 
 A word of 1 to 6 bytes is written and read in either byte order by `std/bits`
 (D-28). `to_le(n, k)` and `to_be(n, k)` give a String of `k` bytes, the form a
@@ -144,7 +129,10 @@ unsigned word of up to six bytes fits exactly, and a 64-bit word does not: six
 is the widest word `std/bits` writes or reads, and a wider one is a `##Range`
 error. Until D-28 a program wrote `put16` and `get16` itself, with `/` and `%`.
 
-## 6. Bits: `std/bits`
+A word is not a character either: `bits::to_le(4660, 2)` is two bytes, `0x34`
+and `0x12`, and has nothing to do with the character whose code is 4660.
+
+## 5. Bits, with `std/bits`
 
 There is no bit operator: a single `&` is not a character of the language (only
 `&&` is), and `|` closes the bars. Bits are functions of `std/bits` on a
@@ -161,19 +149,21 @@ non-negative integer up to 2^53 − 1, a Char taken as its code (D-28):
 `0xF0`, and `not(0x0F, 16)` is `0xFFF0`. A `shl` past the range is an overflow,
 as `*` past it is.
 
-## 7. Cost, measured 2026-11-24 and 2026-11-25
+## 6. Cost, measured 2026-11-24 and 2026-11-25
 
-Reading a byte is linear over the whole buffer: the engines keep the position of
-the characters they read, so each `b[i]` does not count from the start.
+Reading a byte is linear over the whole buffer: the engines keep where the
+characters they read start, so each `b[i]` does not count from the beginning.
 
 **Writing one byte in place is linear in all four engines** since 2026-11-25
-(B-2, ZYJS-076): when nothing else holds the text and the new character takes
-the room the old one did — ASCII for ASCII, a byte from `0x80` to `0xFF` for
-another — it is written where the text is, and the engine keeps the positions it
-knew. The Rust engines write the bytes of the String; zyjs writes the array of
-characters its variable owns; the browser VM, whose registers hold JavaScript
-strings that cannot be written into, keeps the text as a tree of pieces whose
-root is the text, and rebuilds one piece and the joins above it.
+(B-2, ZYJS-076), when nothing else holds the text and the new byte takes the
+room the old one did. That room is the engine's hidden storage, not anything a
+program sees ([`CHARACTERS.md`](CHARACTERS.md) § 5): in the Rust engines' UTF-8,
+a byte from `0x00` to `0x7F` takes one byte of storage and one from `0x80` to
+`0xFF` takes two, so `0x41` for `0x42` and `0x80` for `0xFF` are written where
+they are. The Rust engines write the bytes of the String; zyjs writes the array
+of characters its variable owns; the browser VM, whose registers hold
+JavaScript strings that cannot be written into, keeps the text as a tree of
+pieces whose root is the text, and rebuilds one piece and the joins above it.
 The program below writes `n` bytes, each from `0x80` to `0xFF`:
 
 ```zymbol
@@ -189,31 +179,35 @@ b = ""
 
 The browser figures include reading every byte back, and Node's start. Before
 2026-11-25 the four engines copied the text for each byte: at 16 000, zytw
-710 ms, zyvm 600 ms (2.59 GB allocated), zyjs 4.8 s and zyjsvm 5.8 s. A write that changes the width — `0x41`
-for `0xFF` — still copies the text in every engine: a byte moves, and every
-character after it with it. `zyquality/cost/` holds the linear case
-(`growth/byte-write-in-place`), with the browser's debt declared.
+710 ms, zyvm 600 ms (2.59 GB allocated), zyjs 4.8 s and zyjsvm 5.8 s.
 
-## 8. What was open, and how it was decided
+A write that changes the room — `0x41` for `0xFF` in the Rust engines — still
+copies the text: what follows it moves. `zyquality/cost/` holds the linear case
+(`growth/byte-write-in-place`) in all four engines.
+
+## 7. What was open, and how it was decided
 
 - ~~**B-1 — reading an Int from text in a base.**~~ **Closed by D-25** on
   2026-11-24: `#|…|` reads the four prefixes, so `#|"0x1F0000"|` is 2031616 and
   `#|"0b0101"|` is 5, and what `0x|n|` writes reads back as the Int.
 - ~~**B-2 — writing a byte in place is quadratic.**~~ **Decided 2026-11-25,
-  option (a):** the Rust engines write a character of the same width where the
-  text is, when nothing else holds it (§7). ~~The browser keeps the copy; that is
-  ZYJS-076, a declared debt in the cost gate.~~ The browser engines were fixed
-  the same day, at the author's request (ZYJS-076, and ZYJS-077 for appending).
-  What remains: a write that changes the width copies in every engine.
+  option (a):** the Rust engines write a byte where the text is, when nothing
+  else holds it and it takes the room the old one did (§ 6). ~~The browser keeps
+  the copy; that is ZYJS-076, a declared debt in the cost gate.~~ The browser
+  engines were fixed the same day, at the author's request (ZYJS-076, and
+  ZYJS-077 for appending). What remains: a write that changes the room copies.
 - ~~**B-3 — `Char $* n`.**~~ **Decided 2026-11-25 (D-27):** a Char repeats as
   the text of one character, in every engine; zyjs was the one that refused it.
-  `0x00 $* n` is the way to create a buffer (§4).
+  `0x00 $* n` is the way to create a buffer (§ 3).
 - ~~**B-4 — bit operations.**~~ **Decided 2026-11-25 (D-28):** the module
-  `std/bits` (§6), by the rubric: a named operation with arguments, and no
+  `std/bits` (§ 5), by the rubric: a named operation with arguments, and no
   existing mark derives it.
 - ~~**B-5 — words of several bytes.**~~ **Decided 2026-11-25 (D-28):** in the
-  same module, `to_le`/`to_be`/`from_le`/`from_be` and `signed` (§5), the byte
+  same module, `to_le`/`to_be`/`from_le`/`from_be` and `signed` (§ 4), the byte
   order in the name rather than in a text option.
 - ~~**B-6 — real memory.**~~ **Decided 2026-11-25: no.** Addresses, a shared
   buffer, or memory a program frees by hand would contradict COL-6 and MEM-8
-  (§1), and the author keeps both. A buffer is a value.
+  (§ 2), and the author keeps both. A buffer is a value.
+
+What is still open about characters — the escapes, and a text's UTF-8 bytes
+without a file — is in [`CHARACTERS.md`](CHARACTERS.md) § 6.

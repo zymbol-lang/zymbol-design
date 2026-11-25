@@ -74,6 +74,8 @@ with the implementation that must meet them:
 | [`COLLECTIONS.md`](COLLECTIONS.md) | the point of record for the three collections — *and why each rule was decided the way it was* |
 | [`SYMBOLS.md`](SYMBOLS.md) · [`SIMBOLOS_ES.md`](SIMBOLOS_ES.md) | the sign system: what may be a mark, how marks combine, and every place the rules do not hold |
 | [`MEMORY_MODEL.md`](MEMORY_MODEL.md) | the memory model audited against its implementation |
+| [`CHARACTERS.md`](CHARACTERS.md) | what a character is — its code, the four bases that write it, the three doors, code point against grapheme against column — and where bytes begin |
+| [`BYTES.md`](BYTES.md) | a byte is a character from `0x00` to `0xFF`: buffers, words, bits, what they cost, and how each question about them was decided |
 | [`FORMATTER_RULES.md`](FORMATTER_RULES.md) | `zymbol fmt` is a layout tool and never changes meaning — enforced, not promised |
 | [`I18N.md`](I18N.md) · [`USERAPPI18N.md`](USERAPPI18N.md) | the two i18n mechanisms, and what an application must do to be multilingual |
 | [`DESIGN_STD_DB.md`](DESIGN_STD_DB.md) | the `std/db` design proposal — its header still says *pre-implementation*, which stopped being true in v0.0.7 |
