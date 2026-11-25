@@ -8,7 +8,7 @@ character and its code were removed (D-24), and the bars became three doors, one
 per result (D-25). This document puts
 them in one place and lists what is still missing.
 
-**Status.** §1–§6 describe the language as it is on 2026-11-24. Every example
+**Status.** §1–§6 describe the language as it is on 2026-11-25. Every example
 was run in all four engines (zytw, zyvm, zyjs, zyjsvm) and they agree. §7 gives
 the measured cost. §8 is open: **nothing in §8 is decided**, and each entry there
 names its options.
@@ -161,44 +161,46 @@ application has needed more. Serpiente's generator and ZyBF's tape are built
 from `%` alone, and no LDV application has asked for bit operators (searched
 2026-11-24).
 
-## 7. Cost, measured 2026-11-24
+## 7. Cost, measured 2026-11-24 and 2026-11-25
 
 Reading a byte is linear over the whole buffer: the engines keep the position of
 the characters they read, so each `b[i]` does not count from the start.
-**Writing one byte is quadratic.** A byte from `0x80` to `0xFF` takes two bytes
-of UTF-8, so a String is not a byte array on the inside, and `b[i]$~ v` rebuilds
-the whole text. The program below writes `n` bytes, each from `0x80` to `0xFF`:
+
+**Writing one byte in place is linear in the two Rust engines** since
+2026-11-25 (B-2): when nothing else holds the text and the new character takes
+the bytes the old one did in UTF-8 — ASCII for ASCII, a byte from `0x80` to
+`0xFF` for another — it is written where the text is, and the engine keeps the
+positions it knew. In the browser it is still quadratic: a JavaScript string
+cannot be written into, so `b[i]$~ v` builds the whole text again (ZYJS-076).
+The program below writes `n` bytes, each from `0x80` to `0xFF`:
 
 ```zymbol
-z = 0x80
-b = z $* n
+b = ""
+@ _i:1..n { b = b 0x80 }
 @ i:1..n { b[i]$~ 0xFF }
 ```
 
-| n | zytw | zyvm | zyjsvm | bytes allocated (Rust) |
+| n | zytw | zyvm | zyjs | zyjsvm |
 |---:|---:|---:|---:|---:|
-| 4 000 | 68 ms | 66 ms | 425 ms | 162 MB |
-| 8 000 | 213 ms | 219 ms | 1 208 ms | 648 MB |
-| 16 000 | 699 ms | 785 ms | 5 762 ms | 2.59 GB |
+| 4 000 | 12 ms | 15 ms | 448 ms | 417 ms |
+| 16 000 | 25 ms | 46 ms | 4 792 ms | 5 763 ms |
 
-Doubling `n` quadruples the allocation. At this rate a 1 MB buffer cannot be
-written byte by byte. zyjs does not appear in the table: it refuses `z $* n`
-(B-3). This is a cost of the engines, not a rule of the language. It is §8, B-2.
+Before 2026-11-25 the Rust engines took 59 ms and 600 ms (zyvm) at those sizes,
+and allocated 2.59 GB for 16 000 bytes. A write that changes the width — `0x41`
+for `0xFF` — still copies the text in every engine: a byte moves, and every
+character after it with it. `zyquality/cost/` holds the linear case
+(`growth/byte-write-in-place`), with the browser's debt declared.
 
 ## 8. Open — none of this is decided
 
 - ~~**B-1 — reading an Int from text in a base.**~~ **Closed by D-25** on
   2026-11-24: `#|…|` reads the four prefixes, so `#|"0x1F0000"|` is 2031616 and
   `#|"0b0101"|` is 5, and what `0x|n|` writes reads back as the Int.
-- **B-2 — writing a byte in place is quadratic** (§7). This is work inside the
-  engines, not something a program can see.
-  - Options:
-    - (a) Edit in place when the old and new characters have the same width in
-      UTF-8, which covers every write within `0x00`–`0x7F` or within
-      `0x80`–`0xFF`.
-    - (b) A String whose characters are all ≤ `0xFF` keeps one byte per
-      character inside the engine.
-    - (c) Record it as a finding with a `cost` case, and leave it for later.
+- ~~**B-2 — writing a byte in place is quadratic.**~~ **Decided 2026-11-25,
+  option (a), closed with a remainder:** the Rust engines write a character of
+  the same UTF-8 width where the text is, when nothing else holds it (§7). The
+  browser keeps the copy; that is ZYJS-076, a declared debt in the cost gate. A
+  write that changes the width copies in every engine.
 - **B-3 — `Char $* n`.**
   - The problem: three engines accept `0x00 $* 4`. zyjs refuses it with
     `$* requires a string, got Char`. The GUIDE only describes repeating a
