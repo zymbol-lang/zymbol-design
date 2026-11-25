@@ -166,12 +166,14 @@ as `*` past it is.
 Reading a byte is linear over the whole buffer: the engines keep the position of
 the characters they read, so each `b[i]` does not count from the start.
 
-**Writing one byte in place is linear in the two Rust engines** since
-2026-11-25 (B-2): when nothing else holds the text and the new character takes
-the bytes the old one did in UTF-8 — ASCII for ASCII, a byte from `0x80` to
-`0xFF` for another — it is written where the text is, and the engine keeps the
-positions it knew. In the browser it is still quadratic: a JavaScript string
-cannot be written into, so `b[i]$~ v` builds the whole text again (ZYJS-076).
+**Writing one byte in place is linear in all four engines** since 2026-11-25
+(B-2, ZYJS-076): when nothing else holds the text and the new character takes
+the room the old one did — ASCII for ASCII, a byte from `0x80` to `0xFF` for
+another — it is written where the text is, and the engine keeps the positions it
+knew. The Rust engines write the bytes of the String; zyjs writes the array of
+characters its variable owns; the browser VM, whose registers hold JavaScript
+strings that cannot be written into, keeps the text as a tree of pieces whose
+root is the text, and rebuilds one piece and the joins above it.
 The program below writes `n` bytes, each from `0x80` to `0xFF`:
 
 ```zymbol
@@ -182,11 +184,12 @@ b = ""
 
 | n | zytw | zyvm | zyjs | zyjsvm |
 |---:|---:|---:|---:|---:|
-| 4 000 | 12 ms | 15 ms | 448 ms | 417 ms |
-| 16 000 | 25 ms | 46 ms | 4 792 ms | 5 763 ms |
+| 16 000 | 25 ms | 46 ms | 235 ms | 204 ms |
+| 256 000 | — | — | 1 311 ms | 363 ms |
 
-Before 2026-11-25 the Rust engines took 59 ms and 600 ms (zyvm) at those sizes,
-and allocated 2.59 GB for 16 000 bytes. A write that changes the width — `0x41`
+The browser figures include reading every byte back, and Node's start. Before
+2026-11-25 the four engines copied the text for each byte: at 16 000, zytw
+710 ms, zyvm 600 ms (2.59 GB allocated), zyjs 4.8 s and zyjsvm 5.8 s. A write that changes the width — `0x41`
 for `0xFF` — still copies the text in every engine: a byte moves, and every
 character after it with it. `zyquality/cost/` holds the linear case
 (`growth/byte-write-in-place`), with the browser's debt declared.
@@ -197,10 +200,11 @@ character after it with it. `zyquality/cost/` holds the linear case
   2026-11-24: `#|…|` reads the four prefixes, so `#|"0x1F0000"|` is 2031616 and
   `#|"0b0101"|` is 5, and what `0x|n|` writes reads back as the Int.
 - ~~**B-2 — writing a byte in place is quadratic.**~~ **Decided 2026-11-25,
-  option (a), closed with a remainder:** the Rust engines write a character of
-  the same UTF-8 width where the text is, when nothing else holds it (§7). The
-  browser keeps the copy; that is ZYJS-076, a declared debt in the cost gate. A
-  write that changes the width copies in every engine.
+  option (a):** the Rust engines write a character of the same width where the
+  text is, when nothing else holds it (§7). ~~The browser keeps the copy; that is
+  ZYJS-076, a declared debt in the cost gate.~~ The browser engines were fixed
+  the same day, at the author's request (ZYJS-076, and ZYJS-077 for appending).
+  What remains: a write that changes the width copies in every engine.
 - ~~**B-3 — `Char $* n`.**~~ **Decided 2026-11-25 (D-27):** a Char repeats as
   the text of one character, in every engine; zyjs was the one that refused it.
   `0x00 $* n` is the way to create a buffer (§4).
