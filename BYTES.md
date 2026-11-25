@@ -6,12 +6,11 @@ new here. A byte is a character (D-22). Base literals were already characters.
 The base conversions were given the width of a byte (D-23), the casts between a
 character and its code were removed (D-24), and the bars became three doors, one
 per result (D-25). This document puts
-them in one place and lists what is still missing.
+them in one place, with how each open question was decided.
 
 **Status.** §1–§6 describe the language as it is on 2026-11-25. Every example
 was run in all four engines (zytw, zyvm, zyjs, zyjsvm) and they agree. §7 gives
-the measured cost. §8 is open: **nothing in §8 is decided**, and each entry there
-names its options.
+the measured cost. §8 lists what was open and how each was decided.
 
 ---
 
@@ -101,7 +100,7 @@ Every operation on a buffer is an operation on text.
 
 | What | Write | Note |
 |---|---|---|
-| create | `"" 0x00 0x00 0x00 0x00`, or `0x00 $* n` | for `0x00 $* n` the engines disagree (§8, B-3) |
+| create | `0x00 $* n`, or `"" 0x00 0x00 0x00 0x00` | a Char repeats as the text of one character (D-27) |
 | length | `b$#` | |
 | read a byte | `b[i]` (a Char), `#\|b[i]\|` (its number) | 1-based |
 | change a byte | `b[i]$~ 0xFF` | the result is discarded, so the edit lands in `b` (COL-1) |
@@ -112,7 +111,7 @@ Every operation on a buffer is an operation on text.
 | file | `io::read_bytes(p)`, `io::write_bytes(p, b)` | a Char past `0xFF` is a `##Range` error and leaves the file as it was |
 
 ```zymbol
-b = "" 0x00 0x00 0x00 0x00
+b = 0x00 $* 4
 b[2]$~ 0xFF
 c = b[3]$~ 0x7F
 >> 0x|b[2]| " " 0x|b[3]| " " 0x|c[3]| ¶                 // → 0xFF 0x00 0x7F
@@ -123,43 +122,44 @@ c = b[3]$~ 0x7F
 holds a character that is not a byte. The check is made when the buffer is
 written to a file, by `io::write_bytes`.
 
-## 5. Wider than a byte: arithmetic
+## 5. Wider than a byte: `std/bits`
 
-Two Ints divided with `/` give an Int, truncated toward zero, and `%` gives the
-remainder. That is enough to pack and unpack a word in either byte order:
+A word of 1 to 6 bytes is written and read in either byte order by `std/bits`
+(D-28). `to_le(n, k)` and `to_be(n, k)` give a String of `k` bytes, the form a
+buffer takes, so a word goes into a buffer by joining or slicing it; `from_le(s)`
+and `from_be(s)` read one back; `signed(n, w)` reads a `w`-bit word in two's
+complement.
 
 ```zymbol
-put16(n) { <~ "" |n % 256| |n / 256 % 256| }           // little-endian
-get16(s, i) { <~ #|s[i]| + #|s[i + 1]| * 256 }
-signed8(v) {
-    ? v >= 128 { <~ v - 256 }
-    <~ v
-}
-w = put16(4660)
->> 0x|w[1]| " " 0x|w[2]| " " get16(w, 1) ¶              // → 0x34 0x12 4660
->> signed8(#|0xFF|) " " signed8(#|0x7F|) ¶              // → -1 127
+<# std/bits => bits
+w = bits::to_le(4660, 2)
+>> 0x|w[1]| " " 0x|w[2]| " " bits::from_le(w) ¶            // → 0x34 0x12 4660
+cabecera = "ZY" bits::to_be(1, 2) bits::to_le(65536, 4)
+>> cabecera$# " " bits::from_le(cabecera$[5..8]) ¶          // → 8 65536
+>> bits::signed(#|0xFF|, 8) " " bits::signed(#|0x7F|, 8) ¶  // → -1 127
 ```
 
 The integer is ±(2^53 − 1), and an overflow is an error, not a wrap. So an
-unsigned word of up to six bytes fits exactly, and a 64-bit word does not fit.
-`-7 / 2` is `-3` and `-7 % 2` is `-1`. Keep byte arithmetic non-negative.
+unsigned word of up to six bytes fits exactly, and a 64-bit word does not: six
+is the widest word `std/bits` writes or reads, and a wider one is a `##Range`
+error. Until D-28 a program wrote `put16` and `get16` itself, with `/` and `%`.
 
-## 6. Bits: arithmetic too
+## 6. Bits: `std/bits`
 
-There is no bit operator. A single `&` is not a character of the language (only `&&` is), and `|` closes
-the bars of `#|…|` and `0x|…|`. A bit, a shift left and a shift right are all
-arithmetic:
+There is no bit operator: a single `&` is not a character of the language (only
+`&&` is), and `|` closes the bars. Bits are functions of `std/bits` on a
+non-negative integer up to 2^53 − 1, a Char taken as its code (D-28):
 
 ```zymbol
-bit(n, k) { <~ n / (2 ^ k) % 2 }
->> bit(#|0xA5|, 0) " " bit(#|0xA5|, 1) " " bit(#|0xA5|, 7) ¶   // → 1 0 1
->> 1 * (2 ^ 4) " " #|0xF0| / (2 ^ 4) ¶                            // → 16 15
+<# std/bits => bits
+>> bits::and(0xA5, 0x0F) " " bits::or(0xA0, 0x05) " " bits::xor(0xFF, 0x0F) ¶   // → 5 165 240
+>> bits::shl(1, 4) " " bits::shr(0xF0, 4) " " bits::not(0x0F, 8) ¶              // → 16 15 240
+>> bits::and(bits::shr(0xA5, 7), 1) ¶                                           // → 1
 ```
 
-`and`, `or` and `xor` need a loop over the eight bits. The precedent is that no
-application has needed more. Serpiente's generator and ZyBF's tape are built
-from `%` alone, and no LDV application has asked for bit operators (searched
-2026-11-24).
+`not` takes a width, because an integer of Zymbol has none: `not(0x0F, 8)` is
+`0xF0`, and `not(0x0F, 16)` is `0xFFF0`. A `shl` past the range is an overflow,
+as `*` past it is.
 
 ## 7. Cost, measured 2026-11-24 and 2026-11-25
 
@@ -191,7 +191,7 @@ for `0xFF` — still copies the text in every engine: a byte moves, and every
 character after it with it. `zyquality/cost/` holds the linear case
 (`growth/byte-write-in-place`), with the browser's debt declared.
 
-## 8. Open — none of this is decided
+## 8. What was open, and how it was decided
 
 - ~~**B-1 — reading an Int from text in a base.**~~ **Closed by D-25** on
   2026-11-24: `#|…|` reads the four prefixes, so `#|"0x1F0000"|` is 2031616 and
@@ -201,26 +201,15 @@ character after it with it. `zyquality/cost/` holds the linear case
   the same UTF-8 width where the text is, when nothing else holds it (§7). The
   browser keeps the copy; that is ZYJS-076, a declared debt in the cost gate. A
   write that changes the width copies in every engine.
-- **B-3 — `Char $* n`.**
-  - The problem: three engines accept `0x00 $* 4`. zyjs refuses it with
-    `$* requires a string, got Char`. The GUIDE only describes repeating a
-    String, so no corpus file holds this case and the gate cannot see the
-    difference.
-  - Options:
-    - (a) A Char is accepted as the text of one character. That gives the idiom
-      for creating a buffer.
-    - (b) It is a `##Type` error in all four engines.
-- **B-4 — bit operations.**
-  - Options:
-    - (a) Leave them to arithmetic (§6).
-    - (b) A module, `std/bits`, with `and`, `or`, `xor`, `not`, `shl` and `shr`
-      on non-negative Ints. This follows the rubric: a named operation with
-      arguments, and no existing mark derives it.
-    - (c) Symbols. That needs a base mark with a documented abstract meaning
-      (SYM-5), and `&` and `|` are not available.
-- **B-5 — words of several bytes.** The options are §5's arithmetic, or helper
-  functions such as `u16le`/`u16be`/`u32le` in the same module as B-4.
-- **B-6 — real memory.** Addresses, a shared buffer, or memory a program frees
-  by hand would contradict COL-6 and MEM-8 (§1). This entry is recorded so the
-  question has an answer here. Only the author can open it, in a commit that
-  changes a premise and nothing else.
+- ~~**B-3 — `Char $* n`.**~~ **Decided 2026-11-25 (D-27):** a Char repeats as
+  the text of one character, in every engine; zyjs was the one that refused it.
+  `0x00 $* n` is the way to create a buffer (§4).
+- ~~**B-4 — bit operations.**~~ **Decided 2026-11-25 (D-28):** the module
+  `std/bits` (§6), by the rubric: a named operation with arguments, and no
+  existing mark derives it.
+- ~~**B-5 — words of several bytes.**~~ **Decided 2026-11-25 (D-28):** in the
+  same module, `to_le`/`to_be`/`from_le`/`from_be` and `signed` (§5), the byte
+  order in the name rather than in a text option.
+- ~~**B-6 — real memory.**~~ **Decided 2026-11-25: no.** Addresses, a shared
+  buffer, or memory a program frees by hand would contradict COL-6 and MEM-8
+  (§1), and the author keeps both. A buffer is a value.
