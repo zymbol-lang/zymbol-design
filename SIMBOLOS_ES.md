@@ -607,14 +607,14 @@ Duplicar a `##` mueve del nivel meta al nivel de tipo propiamente dicho.
 | `# nombre` | declaración de módulo | archivo → módulo nombrado |
 | `#>` / `<#` | exportar / importar | superficie del módulo |
 | `#1` / `#0` | literales Bool | verdad tipada, no enteros |
-| `#\|x\|` | evaluación numérica de una cadena | valor → número |
+| `#\|x\|` | evaluación numérica de una cadena, o el código de un carácter (v0.0.12) | valor → número |
 | `x#?` | metadatos de tipo → `(símbolo, conteo, presentación)` | valor → meta |
 | `#.N\|x\|` / `#!N\|x\|` | redondear / truncar N decimales | valor → presentación |
 | `#,\|x\|` / `#^\|x\|` | formato de coma / científico | valor → presentación |
 | `#d₀d₉#` | cambio de modo numérico | script de presentación |
 | `##.` / `###` / `##!` | convertir a Float / redondear a Int / truncar a Int | cruce de tipo |
 | `##"` | marcador String | tipo, solo en typespec de entrada |
-| `##'` | marcador Char | tipo y typespec de entrada (la conversión de Int a Char que también fue en una expresión, v0.0.10–v0.0.11, es `0d\|n\|` desde la v0.0.12) |
+| `##'` | marcador Char | tipo y typespec de entrada (la conversión de Int a Char que también fue en una expresión, v0.0.10–v0.0.11, es `\|n\|` desde la v0.0.12) |
 
 **El paradigma de símbolos de tipo es icónico.** Los valores que devuelve `#?` son miniaturas
 de la notación propia de cada tipo, razón por la cual no necesitan tabla alguna para
@@ -1364,7 +1364,7 @@ vez en cinco versiones.
 | **v0.0.8** | Ninguna marca nueva. `\|\|` se extendió a las ramas de coincidencia como patrón-o, reconocido solo en el nivel superior de una rama. `##!` se extendió a `Char` → punto de código (`##!'A'` → `65`), la única ruta directa Char→Int. Se añadió `std/term` como módulo, deliberadamente y no como símbolos. Se añadió el empaquetado `.zyp` sin ninguna superficie de lenguaje. |
 | **v0.0.9** | Ninguna marca nueva. `->` acepta una lista de parámetros vacía: `() -> cuerpo` es un thunk (§9.6) — un cambio a qué puede llenar la ranura antes de la flecha, no a la flecha. Dos cambios de aplicación sin ninguna superficie: `@!`/`@>` y los saltos etiquetados pasaron a ser errores semánticos (§16.1), y el motor del navegador empezó a verificar el número de argumentos. |
 | **v0.0.10** | Ninguna marca nueva. `##'` gana en una expresión la lectura que `###` y `##.` ya tenían: convierte un punto de código Int en su `Char` (`##'65` → `'A'`), el camino de vuelta de `##!` sobre un `Char`. La marca ya significaba Char; lo nuevo es que ahora también es un cruce de tipo, como la familia de conversiones de la que toma su nombre. |
-| **v0.0.12** | Ninguna marca nueva: se quita una lectura a dos. `##'` pierde su lectura en una expresión y `##!` su operando `Char` (D-24): un carácter y su código pasan sólo por `0d\|…\|`, en los dos sentidos (`0d\|65\|` → `'A'`, `0d\|'A'\|` → `65`), una lectura que el prefijo de base ya tenía para un texto. `0x\|…\|`, `0o\|…\|` y `0b\|…\|` escriben un código como texto nunca más estrecho que un byte (D-23). |
+| **v0.0.12** | Se quita una lectura a dos y se da una a las barras. `##'` pierde su lectura en una expresión y `##!` su operando `Char` (D-24). Tres puertas, una por resultado (D-25): `0x\|…\|`, `0d\|…\|`, `0o\|…\|`, `0b\|…\|` dan el texto en esa base, nunca más estrecho que un byte (D-23) — `0d\|'A'\|` → `"0d65"`; las barras sin prefijo dan el carácter — `\|65\|`, `\|"0x41"\|` → `'A'`; y `#\|…\|` da el número, también el código de un carácter — `#\|'A'\|` → `65`. Las barras ya significaban «convierte lo que encierran»; el prefijo dice a qué, y sin prefijo es al carácter. |
 
 ---
 
